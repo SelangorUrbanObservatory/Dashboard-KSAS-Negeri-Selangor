@@ -10,5 +10,5 @@
   "unique_coverage_repaired_geometry_ha": 642734.46,
   "official_validation": "Pending verification against RSN Selangor 2035 / RT",
   "admin_attributes": "PBT and daerah absent",
-  "dataset_status": "Full GeoJSON files not yet uploaded to GitHub"
+  "dataset_status": "All 4,886 GeoJSON features uploaded in 20 chunks to data/; metadata.json uploaded"
 }
