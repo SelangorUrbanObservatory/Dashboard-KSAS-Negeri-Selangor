@@ -1,20 +1,27 @@
-# SUO Dashboard KSAS Negeri Selangor
+# Dashboard KSAS Negeri Selangor | SUO
 
-Dashboard baharu beridentiti Selangor Urban Observatory (SUO). Tidak menggunakan reka bentuk dashboard Pemantauan KSAS lama.
+Dashboard KSAS Intelligence dibangunkan baharu untuk Selangor Urban Observatory (SUO).
 
-## Status deploy
-- Aplikasi utama `index.html` sudah dimuat naik dalam repository.
-- **Data spatial belum dimuat naik ke GitHub**. Dapatkan pakej penuh `Dashboard-KSAS-SUO-Data-Integrated.zip` daripada perbualan ChatGPT, ekstrak, dan muat naik folder `data/` melalui GitHub (Add file → Upload files).
-- Apabila folder `data/` lengkap, dashboard secara automatik membaca `data/metadata.json` dan kesemua fail GeoJSON yang disenaraikan.
-- Untuk GitHub Pages: Settings → Pages → Deploy from a branch → main → /(root).
+## Status penerbitan data
+- **4,886 poligon KSAS** telah dimasukkan ke folder `data/` dalam **20 fail GeoJSON**, bermula `ksas-01.geojson` hingga `ksas-20.geojson`.
+- `data/metadata.json` menyenaraikan semua fail yang dimuatkan secara automatik oleh `index.html`.
+- **4,849 Tahap 1**, **37 Tahap 2** dan **tiada Tahap 3**.
+- Sumber asal ialah fail MapInfo `KSAS.TAB` daripada `KSAS.zip`, ditukar kepada GeoJSON WGS84 (EPSG:4326).
+- Sebanyak 367 geometri asal dibaiki sebelum eksport.
+- Statistik keluasan adalah **indikatif**, belum disahkan terhadap versi RSN Selangor 2035 (Pengubahan) / RT berkuat kuasa. Atribut luas asal tidak sepadan dengan pengiraan geometri.
+- Dataset tiada medan PBT dan daerah; fungsi penapis mengikut PBT/daerah memerlukan proses spatial join.
+- Pastikan hak penerbitan dataset dan status pewartaan disahkan oleh pemilik data.
 
-## Audit KSAS.zip
-Fail diterima ialah MapInfo native `KSAS.TAB` sebanyak **4,886 rekod**; **4,849 Tahap 1** dan **37 Tahap 2**; tiada Tahap 3. Sebanyak **367 geometri tidak sah** memerlukan pembaikan. Jumlah atribut `luas_h` adalah **963,763.92 ha**, berlainan daripada jumlah luas geometri yang dibaiki (**644,738.50 ha**). Anggaran liputan unik geometri yang dibaiki ialah **642,734.46 ha**. Ini **belum merupakan statistik rasmi yang disahkan**.
+## Fungsi semasa
+Peta Leaflet, layer Tahap 1 dan 2, penapis kategori, maklumat poligon, statistik keluasan geometri dan eksport GeoJSON ditapis, dengan susun atur responsif untuk telefon.
 
-Fail sumber tidak mempunyai medan PBT atau daerah, dan tidak disertakan metadata pengesahan versi atau status pewartaan. Semak keselarasan dengan RSN Selangor 2035 (Pengubahan), RT dan hak penerbitan sebelum digunapakai sebagai rujukan rasmi.
-
-## Fungsi tersedia
-Peta Leaflet, kategori dan tahap, statistik luas indikatif, maklumat poligon, eksport GeoJSON serta susun atur desktop/mobile. Versi lengkap dalam pakej ZIP juga mengandungi modul analitik, eksport CSV dan saringan awal tapak. Saringan tidak menggantikan penilaian perancangan sebenar.
-
-## URL sasaran
+## Paparan
 https://selangorurbanobservatory.github.io/Dashboard-KSAS-Negeri-Selangor/
+
+**Nota:** GitHub Pages mesti diaktifkan melalui Settings → Pages → Deploy from a branch → main /(root). Jangan anggap portal live sehingga penerbitan berjaya disahkan.
+
+## Audit
+- Rekod: 4,886
+- Keluasan jumlah geometri yang dibaiki: 644,738.50 ha (termasuk pertindihan fitur)
+- Keluasan liputan unik anggaran: 642,734.46 ha
+- Jumlah atribut `luas_h`: 963,763.92 ha (tidak digunakan sebagai statistik rasmi)
