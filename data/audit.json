@@ -1,0 +1,14 @@
+{
+  "source": "KSAS.zip / KSAS.TAB (MapInfo Native)",
+  "source_records": 4886,
+  "level_1_records": 4849,
+  "level_2_records": 37,
+  "level_3_records": 0,
+  "invalid_geometries_repaired": 367,
+  "source_attribute_luas_h_total_ha": 963763.92,
+  "repaired_geometry_area_sum_ha": 644738.5,
+  "unique_coverage_repaired_geometry_ha": 642734.46,
+  "official_validation": "Pending verification against RSN Selangor 2035 / RT",
+  "admin_attributes": "PBT and daerah absent",
+  "dataset_status": "Full GeoJSON files not yet uploaded to GitHub"
+}
