@@ -47,7 +47,7 @@ function sync3D(){
   const sourceId='ks-admin-'+type,layerId=sourceId+'-outline';
   try{
    if(!mb.getSource(sourceId))mb.addSource(sourceId,{type:'geojson',data:data[type]});
-   if(!mb.getLayer(layerId))mb.addLayer({id:layerId,type:'line',source:sourceId,paint:{'line-color':configs[type].color,'line-width':type==='pbt'?2.3:1.6,'line-opacity':.88,'line-dasharray':type==='daerah'?[4,3]:[1,0]}});
+   if(!mb.getLayer(layerId))mb.addLayer({id:layerId,type:'line',source:sourceId,paint:{'line-color':configs[type].color,'line-width':type==='pbt'?2.3:1.6,'line-opacity':.88,'line-dasharray':type==='daerah'?[4,3]:[1,0.01]}});
    mb.setLayoutProperty(layerId,'visibility',configs[type].toggle.checked?'visible':'none');
   }catch(e){console.warn('3D boundary sync',type,e)}
  }
