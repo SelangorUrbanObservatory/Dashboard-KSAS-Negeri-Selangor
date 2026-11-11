@@ -4,13 +4,12 @@ const PBT=['MBSA','MBPJ','MBSJ','MBDK','MPS','MPAJ','MPKJ','MPSp','MPKL','MPKS',
 const DIST=['Petaling','Klang','Gombak','Hulu Langat','Sepang','Kuala Langat','Kuala Selangor','Hulu Selangor','Sabak Bernam'];
 const format=n=>Number(n||0).toLocaleString('ms-MY',{maximumFractionDigits:2});
 const styles=[
-'.ki-section{margin:35px 0;scroll-margin-top:20px}.ki-heading{font:800 clamp(23px,2.5vw,32px) "Plus Jakarta Sans",sans-serif;letter-spacing:-1px;margin:8px 0}.ki-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#b52f42}.ki-muted{font-size:11px;line-height:1.7;color:#7b8e8a}.ki-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:19px}.ki-card{border:1px solid #e0e9e5;background:#fff;border-radius:17px;padding:22px;box-shadow:0 10px 26px #284e4109}.ki-card h3{font:800 16px "Plus Jakarta Sans",sans-serif;margin:0 0 8px;color:#2b4940}.ki-modes{display:flex;gap:6px;background:#f4f7f5;border-radius:10px;padding:5px;margin:16px 0}.ki-modes button{flex:1;border:0;border-radius:8px;background:transparent;padding:10px;font-weight:800;color:#617a6d;cursor:pointer}.ki-modes button[aria-pressed=true]{background:#fff;color:#246e52;box-shadow:0 2px 8px #1232}.ki-select{width:100%;padding:12px;border:1px solid #dce8df;background:#fcfefd;border-radius:10px;color:#34574b}.ki-placeholder{background:#f7faf8;border:1px dashed #cfdfd3;border-radius:11px;padding:18px;color:#768c80;font-size:11px;line-height:1.8;margin-top:14px}.ki-indicators{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:13px}.ki-metric{padding:17px;background:#f8fbf9;border:1px solid #e3ece6;border-radius:13px}.ki-metric small{font-size:10px;color:#718a7a}.ki-metric strong{display:block;margin:12px 0 5px;font:800 clamp(17px,2vw,27px) "Plus Jakarta Sans",sans-serif;color:#276f54}.ki-rank{display:grid;grid-template-columns:82px 1fr 86px;align-items:center;gap:9px;margin:12px 0;font-size:11px}.ki-rank b{font-size:11px;color:#4c6a59}.ki-track{height:9px;background:#eef4ef;border-radius:9px;overflow:hidden}.ki-fill{height:100%;background:#85b596;border-radius:9px}.ki-policy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:15px}.ki-policy-grid button{text-align:left;border:1px solid #dfe9e1;border-radius:12px;padding:15px;background:#fcfefd;color:#426450;font-weight:800;cursor:pointer}.ki-policy-grid button[aria-pressed=true]{background:#eef8f1;border-color:#73ae8a}.ki-policy-content{padding:20px;background:#f5faf7;border:1px solid #dfece3;border-left:4px solid #7db490;margin-top:13px;border-radius:11px;font-size:12px;line-height:1.8;color:#42604d}.ki-rank-val{text-align:right;color:#3a7057;font-weight:800}.ki-small{font-size:10px;color:#869a8d;line-height:1.6;margin-top:12px}@media(max-width:940px){.ki-grid{grid-template-columns:1fr}.ki-indicators{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.ki-card{padding:15px}.ki-policy-grid{grid-template-columns:1fr}.ki-rank{grid-template-columns:70px 1fr 75px;gap:5px}}'
+'.ki-ranking-only{grid-template-columns:1fr!important}.ki-section{margin:35px 0;scroll-margin-top:20px}.ki-heading{font:800 clamp(23px,2.5vw,32px) "Plus Jakarta Sans",sans-serif;letter-spacing:-1px;margin:8px 0}.ki-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#b52f42}.ki-muted{font-size:11px;line-height:1.7;color:#7b8e8a}.ki-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:19px}.ki-card{border:1px solid #e0e9e5;background:#fff;border-radius:17px;padding:22px;box-shadow:0 10px 26px #284e4109}.ki-card h3{font:800 16px "Plus Jakarta Sans",sans-serif;margin:0 0 8px;color:#2b4940}.ki-modes{display:flex;gap:6px;background:#f4f7f5;border-radius:10px;padding:5px;margin:16px 0}.ki-modes button{flex:1;border:0;border-radius:8px;background:transparent;padding:10px;font-weight:800;color:#617a6d;cursor:pointer}.ki-modes button[aria-pressed=true]{background:#fff;color:#246e52;box-shadow:0 2px 8px #1232}.ki-select{width:100%;padding:12px;border:1px solid #dce8df;background:#fcfefd;border-radius:10px;color:#34574b}.ki-placeholder{background:#f7faf8;border:1px dashed #cfdfd3;border-radius:11px;padding:18px;color:#768c80;font-size:11px;line-height:1.8;margin-top:14px}.ki-indicators{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:13px}.ki-metric{padding:17px;background:#f8fbf9;border:1px solid #e3ece6;border-radius:13px}.ki-metric small{font-size:10px;color:#718a7a}.ki-metric strong{display:block;margin:12px 0 5px;font:800 clamp(17px,2vw,27px) "Plus Jakarta Sans",sans-serif;color:#276f54}.ki-rank{display:grid;grid-template-columns:82px 1fr 86px;align-items:center;gap:9px;margin:12px 0;font-size:11px}.ki-rank b{font-size:11px;color:#4c6a59}.ki-track{height:9px;background:#eef4ef;border-radius:9px;overflow:hidden}.ki-fill{height:100%;background:#85b596;border-radius:9px}.ki-policy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:15px}.ki-policy-grid button{text-align:left;border:1px solid #dfe9e1;border-radius:12px;padding:15px;background:#fcfefd;color:#426450;font-weight:800;cursor:pointer}.ki-policy-grid button[aria-pressed=true]{background:#eef8f1;border-color:#73ae8a}.ki-policy-content{padding:20px;background:#f5faf7;border:1px solid #dfece3;border-left:4px solid #7db490;margin-top:13px;border-radius:11px;font-size:12px;line-height:1.8;color:#42604d}.ki-rank-val{text-align:right;color:#3a7057;font-weight:800}.ki-small{font-size:10px;color:#869a8d;line-height:1.6;margin-top:12px}@media(max-width:940px){.ki-grid{grid-template-columns:1fr}.ki-indicators{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.ki-card{padding:15px}.ki-policy-grid{grid-template-columns:1fr}.ki-rank{grid-template-columns:70px 1fr 75px;gap:5px}}'
 ].join('');
 const style=document.createElement('style');style.textContent=styles;style.id='ki-styles';document.head.appendChild(style);
 const root=document.createElement('section');root.className='ki-section';root.id='ksas-intelligence';
 root.innerHTML='<span class="ki-kicker">SUO · ENVIRONMENTAL INTELLIGENCE</span><h2 class="ki-heading">Analitik Spatial dan Indikator KSAS</h2><p class="ki-muted">Analisis pentadbiran, statistik pemuliharaan dan penerangan dasar RSN Selangor 2035 (Pengubahan).</p>'+
-'<div class="ki-grid"><article class="ki-card"><h3>Spatial Explorer PBT / Daerah</h3><p class="ki-muted">Pilih kawasan pentadbiran untuk memaparkan keluasan hasil persilangan geometri KSAS.</p><div class="ki-modes"><button data-mode="pbt" aria-pressed="true">PBT</button><button data-mode="daerah" aria-pressed="false">Daerah</button></div><select id="ki-place" class="ki-select" aria-label="Pilih kawasan pentadbiran"></select><div id="ki-area" class="ki-placeholder" aria-live="polite"></div></article>'+
-'<article class="ki-card"><h3>Ranking KSAS PBT / Daerah</h3><p class="ki-muted">Perbandingan keluasan KSAS mengikut kawasan pentadbiran menggunakan hasil spatial intersection rasmi.</p><div id="ki-ranking" class="ki-placeholder" aria-live="polite"></div></article></div>'+
+'<div class="ki-grid ki-ranking-only"><article class="ki-card"><h3>Ranking KSAS PBT / Daerah</h3><p class="ki-muted">Ranking mengikut pilihan PBT atau Daerah di bar penapis atas peta. Keputusan memerlukan keluasan intersection yang disahkan untuk semua kawasan.</p><div id="ki-ranking" class="ki-placeholder" aria-live="polite"></div></article></div>'+ 
 '<article class="ki-card" style="margin-top:17px"><h3>Conservation Indicators</h3><p class="ki-muted">Jumlah luas fitur boleh bertindih. Liputan unik negeri memerlukan proses union/dissolve yang berasingan.</p><div class="ki-indicators">'+
 '<div class="ki-metric"><small>Bilangan objek GIS</small><strong id="ki-count">—</strong><small>Dataset aktif</small></div>'+
 '<div class="ki-metric"><small>Jumlah luas fitur</small><strong id="ki-sum">—</strong><small>Hektar · mungkin bertindih</small></div>'+
@@ -20,35 +19,16 @@ root.innerHTML='<span class="ki-kicker">SUO · ENVIRONMENTAL INTELLIGENCE</span>
 const rsn=document.getElementById('rsn-ksas'),workspace=document.querySelector('.workspace'),footer=document.querySelector('.footer');
 if(rsn)rsn.parentNode.insertBefore(root,rsn);else if(footer)footer.parentNode.insertBefore(root,footer);else if(workspace)workspace.after(root);
 const $=id=>document.getElementById(id);
-let mode='pbt',admin=null;
+let mode='pbt',admin=null;const currentSelection={type:'pbt',name:''};
 const places=()=>mode==='pbt'?PBT:DIST;
 const rows=()=>admin&&admin[mode];
-function setupPlaces(){
- $('ki-place').innerHTML='';
- let empty=document.createElement('option');empty.value='';empty.textContent='Pilih '+(mode==='pbt'?'PBT':'daerah');$('ki-place').appendChild(empty);
- places().forEach(n=>{let x=document.createElement('option');x.value=n;x.textContent=n;$('ki-place').appendChild(x)});
-}
-function renderArea(){
- let data=rows(),name=$('ki-place').value;
- if(!data){$('ki-area').textContent='Analisis PBT/daerah belum tersedia. Memerlukan data sempadan rasmi dan hasil spatial intersection KSAS yang disahkan.';return}
- if(!name){$('ki-area').textContent='Pilih '+(mode==='pbt'?'PBT':'daerah')+' untuk melihat analisis keluasan KSAS.';return}
- let item=data.find(x=>x.name===name);
- if(!item){$('ki-area').textContent='Data kawasan tidak ditemukan.';return}
- $('ki-area').innerHTML='<b>'+name+'</b><div class="ki-indicators" style="grid-template-columns:repeat(3,1fr)">'+['1','2','3'].map(k=>'<div class="ki-metric"><small>Tahap '+k+'</small><strong>'+format(item.by_level_ha[k])+'</strong><small>ha</small></div>').join('')+'</div><p class="ki-small">Jumlah luas fitur terpotong: '+format(item.total_ha)+' ha · keluasan sempadan: '+format(item.boundary_ha)+' ha. Tahap boleh bertindih.</p>';
-}
 function renderRanking(){
  let data=rows();
  if(!data){$('ki-ranking').textContent='Ranking menunggu hasil spatial intersection rasmi. Tiada nilai atau turutan direka berdasarkan anggaran.';return}
  let sorted=data.slice().sort((a,b)=>b.total_ha-a.total_ha),max=Math.max(1,...sorted.map(x=>x.total_ha));
- $('ki-ranking').innerHTML=sorted.map((r,i)=>'<div class="ki-rank"><b>'+(i+1)+'. '+r.name+'</b><div class="ki-track"><div class="ki-fill" style="width:'+(r.total_ha/max*100).toFixed(2)+'%"></div></div><span class="ki-rank-val">'+format(r.total_ha)+' ha</span></div>').join('')+'<p class="ki-small">Disusun mengikut jumlah keluasan hasil potongan fitur, bukan keluasan unik (union).</p>';
+ $('ki-ranking').innerHTML=sorted.map((r,i)=>'<div class="ki-rank"'+(r.name===currentSelection.name?' style="background:#edf8f1;border-radius:6px;padding:6px"':'')+'><b>'+(i+1)+'. '+r.name+'</b><div class="ki-track"><div class="ki-fill" style="width:'+(r.total_ha/max*100).toFixed(2)+'%"></div></div><span class="ki-rank-val">'+format(r.total_ha)+' ha</span></div>').join('')+'<p class="ki-small">Disusun mengikut jumlah keluasan hasil potongan fitur, bukan keluasan unik (union).</p>';
 }
-root.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{
- mode=b.dataset.mode;
- root.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.mode===mode)));
- setupPlaces();renderArea();renderRanking();
-}));
-$('ki-place').addEventListener('change',renderArea);
-setupPlaces();renderArea();renderRanking();
+renderRanking();
 function validate(arr,names){
  if(!Array.isArray(arr)||arr.length!==names.length)return null;
  let found=new Set();
@@ -62,8 +42,21 @@ function validate(arr,names){
 fetch('./data/ksas_admin_intersection.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{
  if(!data||data.status!=='verified'||data.metric!=='intersected_feature_area_ha'||!data.source_boundary||!data.source_ksas||!data.generated_at)return;
  let pbt=validate(data.pbt,PBT),daerah=validate(data.daerah,DIST);
- if(pbt&&daerah){admin={pbt,daerah};renderArea();renderRanking()}
+ if(pbt&&daerah){admin={pbt,daerah};renderRanking()}
 }).catch(e=>console.warn('KSAS spatial analytics pending official boundary data',e));
+// Area selection comes exclusively from the top filter, not a duplicate Spatial Explorer.
+function selectionChanged(){
+ const type=document.getElementById('ksas-area-type');
+ const area=document.getElementById('ksas-area-name');
+ mode=type&&type.value==='daerah'?'daerah':'pbt';
+ currentSelection.type=mode;
+ currentSelection.name=area?area.value:'';
+ renderRanking();
+}
+document.addEventListener('suo-ksas-admin-selection',selectionChanged);
+document.getElementById('ksas-area-type')?.addEventListener('change',selectionChanged);
+document.getElementById('ksas-area-name')?.addEventListener('change',selectionChanged);
+selectionChanged();
 const topics=[
  ['forest','🌳 Hutan dan biodiversiti','Kawasan perlindungan, Hutan Simpanan Kekal, habitat biodiversiti dan rangkaian ekologi. Tahap perlu ditentukan mengikut status serta kriteria lokasi sebenar.'],
  ['hills','⛰️ Tanah tinggi dan cerun','Kriteria kontur serta kawasan bukit dan cerun perlu disemak bersama data topografi, garis panduan dan pertimbangan teknikal.'],
