@@ -227,6 +227,8 @@ layer=L.geoJSON({type:'FeatureCollection',features:filtered},{
 style:function(f){return {color:palette[level(f)]||'#70859d',fillColor:palette[level(f)]||'#70859d',weight:1,opacity:.85,fillOpacity:.40}},
 onEachFeature:function(f,l){l.on('click',function(e){var v=selectKSAS(f.properties||{});L.popup({maxWidth:310}).setLatLng(e.latlng).setContent(v.popup).openOn(map)})}
 }).addTo(map);
+window.__suoKsasFiltered=filtered;
+document.dispatchEvent(new CustomEvent('suo-ksas-filtered',{detail:{count:filtered.length}}));
 if(mode3d&&ready3d)put3D();
 var vals={'1':0,'2':0,'3':0},nums={'1':0,'2':0,'3':0};
 filtered.forEach(function(f){var k=level(f);if(k in vals){vals[k]+=area(f);nums[k]++}});
@@ -282,6 +284,17 @@ $('mode').addEventListener('click',toggleMapMode);
 $('basemap').addEventListener('click',function(){if(mode3d&&map3d){ready3d=false;mapboxStyle=mapboxStyle.includes('light-v11')?'mapbox://styles/mapbox/satellite-streets-v12':'mapbox://styles/mapbox/light-v11';showLoading('Memuatkan gaya 3D…');map3d.setStyle(mapboxStyle);return}if(dark){map.removeLayer(satellite);map.removeLayer(fallback);light.addTo(map);tileErrors=0}else{map.removeLayer(light);map.removeLayer(fallback);satellite.addTo(map)}dark=!dark});
 $('full').addEventListener('click',function(){var el=document.querySelector('.map-panel');if(document.fullscreenElement){document.exitFullscreen()}else if(el.requestFullscreen){el.requestFullscreen()}});
 document.addEventListener('fullscreenchange',function(){if(document.fullscreenElement){$('map').style.height='calc(100vh - 126px)'}else{$('map').style.height=''}setTimeout(function(){map.invalidateSize();if(map3d)map3d.resize()},60)});
+document.addEventListener('suo-ksas-focus',function(e){
+var f=e.detail&&e.detail.feature;if(!f||!f.geometry)return;
+var featureLayer=L.geoJSON(f),bounds=featureLayer.getBounds();
+if(!bounds.isValid())return;
+selectKSAS(f.properties||{});
+if(mode3d&&map3d){
+ map3d.fitBounds([[bounds.getWest(),bounds.getSouth()],[bounds.getEast(),bounds.getNorth()]],{padding:55,maxZoom:13,pitch:55});
+}else{
+ map.fitBounds(bounds,{padding:[35,35],maxZoom:14});
+}
+});
 init();
 })();
 </script>
@@ -290,4 +303,5 @@ init();
 <script src="./js/ksas-rsn.js?v=1"></script>
 <script src="./js/ksas-source-sync.js?v=1"></script>
 <script src="./js/ksas-intelligence.js?v=1"></script>
+<script src="./js/ksas-flagship-layout.js?v=1"></script>
 </body></html>
