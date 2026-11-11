@@ -23,7 +23,7 @@ const css=[
 let style=document.createElement('style');style.id='ksas-admin-boundary-style';style.textContent=css;document.head.appendChild(style);
 const section=document.createElement('section');section.className='ks-boundary';section.innerHTML=
 '<h3>Sempadan Pentadbiran</h3><div class="ks-boundary-controls">'+
-'<label><input type="checkbox" id="ks-b-pbt"><i class="ks-boundary-key" style="border-color:#d58a43"></i>PBT</label>'+
+'<label><input type="checkbox" id="ks-b-pbt" checked><i class="ks-boundary-key" style="border-color:#d58a43"></i>PBT</label>'+
 '<label><input type="checkbox" id="ks-b-daerah"><i class="ks-boundary-key" style="border-color:#437f9a"></i>Daerah</label></div>'+
 '<div class="ks-admin-selection"><select id="ks-b-pbt-select" aria-label="Fokus PBT"><option value="">Pilih PBT</option></select><select id="ks-b-daerah-select" aria-label="Fokus daerah"><option value="">Pilih daerah</option></select></div>'+
 '<p class="ks-boundary-status" id="ks-boundary-status">Memuatkan sempadan GeoJSON SUO…</p>';
@@ -39,7 +39,22 @@ function labelFor(feature,type){
  return Object.values(p).map(String).map(x=>x.trim()).find(x=>names.some(n=>n.toLowerCase()===x.toLowerCase()))||'Daerah';
 }
 function announce(msg){$('ks-boundary-status').textContent=msg;}
+function sync3D(){
+ const mb=window.__suoKsasMapbox;
+ if(!mb||!mb.isStyleLoaded||!mb.isStyleLoaded())return;
+ for(const type of ['pbt','daerah']){
+  if(!data[type])continue;
+  const sourceId='ks-admin-'+type,layerId=sourceId+'-outline';
+  try{
+   if(!mb.getSource(sourceId))mb.addSource(sourceId,{type:'geojson',data:data[type]});
+   if(!mb.getLayer(layerId))mb.addLayer({id:layerId,type:'line',source:sourceId,paint:{'line-color':configs[type].color,'line-width':type==='pbt'?2.3:1.6,'line-opacity':.88,'line-dasharray':type==='daerah'?[4,3]:[1,0]}});
+   mb.setLayoutProperty(layerId,'visibility',configs[type].toggle.checked?'visible':'none');
+  }catch(e){console.warn('3D boundary sync',type,e)}
+ }
+}
+document.addEventListener('suo-ksas-mapbox-ready',sync3D);
 function redraw(){
+ sync3D();
  for(const type of ['pbt','daerah']){
   let layer=layers[type];if(!layer)continue;
   if(configs[type].toggle.checked){if(!map.hasLayer(layer))layer.addTo(map);}
@@ -82,6 +97,7 @@ async function load(type){
  data[type]=geo;layers[type]=layer;
  const labels=Array.from(new Set(geo.features.map(f=>labelFor(f,type)))).sort((a,b)=>a.localeCompare(b,'ms'));
  for(const n of labels){const o=document.createElement('option');o.value=n;o.textContent=n;configs[type].target.appendChild(o)}
+ sync3D();
  document.dispatchEvent(new CustomEvent('suo-ksas-boundary-loaded',{detail:{type,features:geo.features.length,labels}}));
  redraw();return geo.features.length;
 }
