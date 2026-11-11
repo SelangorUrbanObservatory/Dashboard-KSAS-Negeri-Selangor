@@ -236,7 +236,11 @@ filtered.forEach(function(f){var k=level(f);if(k in vals){vals[k]+=area(f);nums[
 $('one').textContent=fmt(vals['1']);$('two').textContent=fmt(vals['2']);$('three').textContent=fmt(vals['3']);$('count').textContent=fmt(filtered.length);
 $('total').textContent=fmt(filtered.reduce(function(sum,f){return sum+area(f)},0));
 $('total').parentNode.querySelector('.ksub').textContent='Hektar · jumlah geometri (boleh bertindih)';
-$('stats').innerHTML=['1','2','3'].map(function(k){return '<div class="statrow"><div class="stat-top"><span><i class="swatch t'+k+'"></i> Tahap '+k+'</span><b>'+fmt(vals[k])+' ha</b></div><div class="bar"><div class="fill" style="background:'+palette[k]+';width:'+(100*vals[k]/Math.max(vals['1'],vals['2'],vals['3'],1))+'%"></div></div><div class="ksub">'+fmt(nums[k])+' poligon</div></div>'}).join('');
+$('stats').innerHTML=['1','2','3'].map(function(k){
+var originalToggle=document.querySelector('.level[value="'+k+'"]');
+var checked=originalToggle&&originalToggle.checked;
+return '<div class="statrow'+(checked?'':' ks-stat-disabled')+'"><div class="stat-top"><label class="ks-stat-toggle"><input type="checkbox" class="ks-stat-level" value="'+k+'" aria-label="Papar KSAS Tahap '+k+'" '+(checked?'checked':'')+'><i class="swatch t'+k+'"></i><span>Tahap '+k+'</span></label><b>'+fmt(vals[k])+' ha</b></div><div class="bar"><div class="fill" style="background:'+palette[k]+';width:'+(100*vals[k]/Math.max(vals['1'],vals['2'],vals['3'],1))+'%"></div></div><div class="ksub">'+fmt(nums[k])+' poligon</div></div>'
+}).join('');
 $('mapcaption').textContent=fmt(filtered.length)+' daripada '+fmt(original.length)+' poligon dipaparkan';
 $('mapstatus').textContent=filtered.length?'Klik poligon untuk butiran':'Tiada kawasan sepadan dengan penapis';
 $('status').textContent=fmt(original.length)+' poligon tersedia'
@@ -278,6 +282,13 @@ if(fs.length!==m.published_features)throw Error('Bilangan fitur tidak sepadan me
 ingest({type:'FeatureCollection',features:fs},m)
 }catch(e){showLoading('Gagal memuat data: '+e.message);console.error(e)}
 }
+// Compact layer switches inside their corresponding analytics rows.
+$('stats').addEventListener('change',function(e){
+ var mirror=e.target.closest('.ks-stat-level');
+ if(!mirror)return;
+ var source=document.querySelector('.level[value="'+mirror.value+'"]');
+ if(source){source.checked=mirror.checked;source.dispatchEvent(new Event('change',{bubbles:true}));}
+});
 $('cat').addEventListener('change',paint);
 $('query').addEventListener('input',paint);
 document.querySelectorAll('.level').forEach(function(x){x.addEventListener('change',paint)});
