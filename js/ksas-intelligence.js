@@ -92,4 +92,6 @@ document.addEventListener('suo-ksas-indicators',e=>{
  const n=e.detail&&e.detail.featureAreaHa;
  if(typeof n==='number'&&Number.isFinite(n))$('ki-sum').textContent=format(n)+' ha';
 });
+if(window.__suoKsasData)document.dispatchEvent(new CustomEvent('suo-ksas-data',{detail:window.__suoKsasData}));
+if(window.__suoKsasIndicators)document.dispatchEvent(new CustomEvent('suo-ksas-indicators',{detail:window.__suoKsasIndicators}));
 })();
