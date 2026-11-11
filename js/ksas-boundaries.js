@@ -32,6 +32,7 @@ const section=document.createElement('section');section.className='ks-boundary';
 const stats=$('stats');if(stats)panel.insertBefore(section,stats);else panel.prepend(section);
 const configs={pbt:{color:'#d58a43',target:$('ks-b-pbt-select'),toggle:$('ks-b-pbt')},daerah:{color:'#7542b5',target:$('ks-b-daerah-select'),toggle:$('ks-b-daerah')}};
 const layers={};const labelLayers={};const data={};const state={pbt:'',daerah:''};
+window.__suoKsasBoundaryData=data;
 // Dedicated panes remain above all KSAS fills and linework even after filter redraw.
 if(!map.getPane('ksas-boundaries'))map.createPane('ksas-boundaries');
 map.getPane('ksas-boundaries').style.zIndex='625';
@@ -107,6 +108,7 @@ function focus(type,name){
  state[type]=name;
  if(!name){redraw();return}
  configs[type].toggle.checked=true;redraw();
+ document.dispatchEvent(new CustomEvent('suo-ksas-boundary-selected',{detail:{type:type,name:name}}));
  const feature=data[type]&&data[type].features.find(f=>labelFor(f,type)===name);
  if(!feature)return;
  const bounds=L.geoJSON(feature).getBounds();
@@ -142,6 +144,7 @@ async function load(type){
    });
   }});
  data[type]=geo;layers[type]=layer;
+ document.dispatchEvent(new CustomEvent('suo-ksas-boundary-data',{detail:{type:type,geojson:geo}}));
  // A lightweight, permanent label layer above the polygons, independently toggled.
  const markers=geo.features.map(f=>{
    const b=L.geoJSON(f).getBounds();
