@@ -250,6 +250,7 @@ $('cat').innerHTML='<option value="">Semua kategori</option>'+categories.map(fun
 Array.from($('cat').options).slice(1).forEach(function(o,i){o.value=categories[i]});
 $('query').value='';document.querySelectorAll('.level').forEach(function(x){x.checked=true});
 paint();zoomAll();hideLoading();
+document.dispatchEvent(new CustomEvent('suo-ksas-indicators',{detail:{featureAreaHa:original.reduce(function(sum,f){return sum+area(f)},0)}}));
 document.dispatchEvent(new CustomEvent('suo-ksas-data',{detail:{source101:!!(metadata&&metadata.source_101),counts:{'1':original.filter(function(f){return level(f)==='1'}).length,'2':original.filter(function(f){return level(f)==='2'}).length,'3':original.filter(function(f){return level(f)==='3'}).length},total:original.length}}));
 }
 async function init(){
@@ -286,4 +287,5 @@ init();
 <script src="./js/ksas-ambient-v2.js?v=4-soft-neutral-contour"></script>
 <script src="./js/ksas-rsn.js?v=1"></script>
 <script src="./js/ksas-source-sync.js?v=1"></script>
+<script src="./js/ksas-intelligence.js?v=1"></script>
 </body></html>
