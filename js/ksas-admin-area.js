@@ -1,5 +1,8 @@
 (function(){
 'use strict';
+const SUO_PBT_ORDER=['MBSA','MBPJ','MBSJ','MBDK','MPS','MPAJ','MPKJ','MPSp','MPKL','MPKS','MPHS','MDSB'];
+const SUO_DAERAH_ORDER=['Petaling','Klang','Gombak','Hulu Langat','Sepang','Kuala Langat','Kuala Selangor','Hulu Selangor','Sabak Bernam'];
+
 var filterbar=document.querySelector('.ks-filterbar');
 var right=document.querySelector('.workspace>.right');
 if(!filterbar||!right)return;
@@ -47,7 +50,7 @@ function setStatus(t){$('ksas-area-output').className='ks-area-status';$('ksas-a
 function populate(){
  var sel=$('ksas-area-name'),geo=allData()[currentType];
  sel.innerHTML='<option value="">Semua Selangor</option>';
- if(geo&&geo.features)Array.from(new Set(geo.features.map(f=>label(f,currentType)))).sort((a,b)=>a.localeCompare(b,'ms')).forEach(n=>{
+ if(geo&&geo.features)Array.from(new Set(geo.features.map(f=>label(f,currentType)))).sort((a,b)=>{const order=currentType==='pbt'?SUO_PBT_ORDER:SUO_DAERAH_ORDER;const ai=order.indexOf(a),bi=order.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'ms')}).forEach(n=>{
   var o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);
  });
  sel.value=selected&&Array.from(sel.options).some(o=>o.value===selected)?selected:'';
