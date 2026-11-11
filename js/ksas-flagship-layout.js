@@ -71,5 +71,6 @@ const focus=(target)=>{const i=Number(target.dataset.featureIndex),f=(window.__s
 panel.addEventListener('click',e=>{let row=e.target.closest('[data-feature-index]');if(row)focus(row)});
 panel.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){let row=e.target.closest('[data-feature-index]');if(row){e.preventDefault();focus(row)}}});
 document.addEventListener('suo-ksas-filtered',render);
+requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
 render();
 })();
