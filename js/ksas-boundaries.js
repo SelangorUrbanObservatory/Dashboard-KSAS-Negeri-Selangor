@@ -19,18 +19,18 @@ const css=[
 '.ks-admin-selection{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}',
 '.ks-admin-selection select{width:100%;min-width:0;padding:9px;border:1px solid #dce7e1;border-radius:8px;background:#fff;font-size:11px;color:#496357}',
 '.ks-boundary-text{background:rgba(255,255,255,.93);border:1px solid #cdded8;border-radius:7px;box-shadow:0 2px 8px #163a3224;color:#315849;font:800 11px "DM Sans",sans-serif;padding:4px 7px;white-space:nowrap;text-align:center;pointer-events:none}',
-'.ks-boundary-text.daerah{border-color:#b9d1dc;color:#37647a;font-size:12px}',
+'.ks-boundary-text.daerah{border-color:#c8b6e8;color:#5a2d96;font-size:12px}',
 '@media(max-width:520px){.ks-admin-selection{grid-template-columns:1fr}}'
 ].join('\n');
 let style=document.createElement('style');style.id='ksas-admin-boundary-style';style.textContent=css;document.head.appendChild(style);
 const section=document.createElement('section');section.className='ks-boundary';section.innerHTML=
 '<h3>Sempadan Pentadbiran</h3><div class="ks-boundary-controls">'+
 '<label><input type="checkbox" id="ks-b-pbt" checked><i class="ks-boundary-key" style="border-color:#d58a43"></i>PBT</label>'+
-'<label><input type="checkbox" id="ks-b-daerah"><i class="ks-boundary-key" style="border-color:#437f9a"></i>Daerah</label></div>'+
+'<label><input type="checkbox" id="ks-b-daerah"><i class="ks-boundary-key" style="border-color:#7542b5"></i>Daerah</label></div>'+
 '<div class="ks-admin-selection"><select id="ks-b-pbt-select" aria-label="Fokus PBT"><option value="">Pilih PBT</option></select><select id="ks-b-daerah-select" aria-label="Fokus daerah"><option value="">Pilih daerah</option></select></div>'+
 '<p class="ks-boundary-status" id="ks-boundary-status">Memuatkan sempadan GeoJSON SUO…</p>';
 const stats=$('stats');if(stats)panel.insertBefore(section,stats);else panel.prepend(section);
-const configs={pbt:{color:'#d58a43',target:$('ks-b-pbt-select'),toggle:$('ks-b-pbt')},daerah:{color:'#437f9a',target:$('ks-b-daerah-select'),toggle:$('ks-b-daerah')}};
+const configs={pbt:{color:'#d58a43',target:$('ks-b-pbt-select'),toggle:$('ks-b-pbt')},daerah:{color:'#7542b5',target:$('ks-b-daerah-select'),toggle:$('ks-b-daerah')}};
 const layers={};const labelLayers={};const data={};const state={pbt:'',daerah:''};
 // Dedicated panes remain above all KSAS fills and linework even after filter redraw.
 if(!map.getPane('ksas-boundaries'))map.createPane('ksas-boundaries');
@@ -57,7 +57,7 @@ function sync3D(){
   try{
    if(!mb.getSource(sourceId))mb.addSource(sourceId,{type:'geojson',data:data[type]});
    if(!mb.getLayer(layerId))mb.addLayer({id:layerId,type:'line',source:sourceId,
-    paint:{'line-color':configs[type].color,'line-width':type==='pbt'?2.5:2,'line-opacity':.95,
+    paint:{'line-color':configs[type].color,'line-width':type==='pbt'?2.5:3,'line-opacity':.95,
            'line-dasharray':type==='daerah'?[4,3]:[1,0.01]}});
    if(!mb.getSource(pointSource)){
     let pointFeatures=data[type].features.map(f=>{
@@ -98,7 +98,7 @@ function redraw(){
   }
   layer.eachLayer(l=>{
    const n=labelFor(l.feature,type),chosen=state[type]===n;
-   l.setStyle({color:configs[type].color,weight:chosen?4:(type==='pbt'?2.5:1.9),
+   l.setStyle({color:configs[type].color,weight:chosen?4:(type==='pbt'?2.5:3),
     opacity:chosen?1:.95,fill:false,dashArray:type==='daerah'?'6 5':null});
   });
  }
@@ -131,7 +131,7 @@ async function load(type){
  const geo=await res.json();if(!isCollection(geo))throw Error('GeoJSON kosong / tidak sah');
  const expected=type==='pbt'?12:9;
  if(geo.features.length!==expected)throw Error('Bilangan sempadan '+geo.features.length+' tidak sama dengan '+expected);
- const layer=L.geoJSON(geo,{pane:'ksas-boundaries',style:{color:configs[type].color,weight:type==='pbt'?2.5:1.9,opacity:.95,fill:false,dashArray:type==='daerah'?'6 5':null},
+ const layer=L.geoJSON(geo,{pane:'ksas-boundaries',style:{color:configs[type].color,weight:type==='pbt'?2.5:3,opacity:.95,fill:false,dashArray:type==='daerah'?'6 5':null},
   onEachFeature:(f,l)=>{
    const name=labelFor(f,type);
    l.bindTooltip(name,{sticky:true,direction:'top'});
