@@ -26,4 +26,5 @@ var story=document.getElementById('kenali-ksas');
 if(story)story.appendChild(governance);
 var nav=document.querySelector('.ks-nav');
 if(nav){var link=document.createElement('a');link.href='#jtpksas-selangor';link.textContent='▤ JTPKSAS Selangor';nav.appendChild(link)}
+if(location.hash==='#jtpksas-selangor'&&governance.isConnected){requestAnimationFrame(function(){governance.scrollIntoView({block:'start'})})}
 })();
