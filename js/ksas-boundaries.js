@@ -47,6 +47,7 @@ function labelFor(feature,type){
  for(const k of keys){if(p[k]&&typeof p[k]==='string'){const v=p[k].trim();const m=names.find(n=>n.toLowerCase()===v.toLowerCase()||v.toLowerCase().endsWith(n.toLowerCase()));if(m)return m;}}
  return Object.values(p).map(String).map(x=>x.trim()).find(x=>names.some(n=>n.toLowerCase()===x.toLowerCase()))||'Daerah';
 }
+window.__suoKsasBoundaryLabelFor=labelFor;
 function announce(msg){$('ks-boundary-status').textContent=msg;}
 function sync3D(){
  const mb=window.__suoKsasMapbox;
