@@ -107,9 +107,7 @@ body>main{isolation:isolate}
 <div class="kpi"><span class="kico">▦</span><div class="klabel">Bilangan poligon dipaparkan</div><div class="kvalue" id="count">—</div><div class="ksub">Fitur spatial mengikut penapis</div></div>
 </section>
 <div class="workspace">
-<aside class="panel side"><div class="section-head"><div><h2 class="paneltitle">Eksplorasi Data</h2><div class="panelsub">Tapis dan cari kawasan KSAS</div></div><span style="color:#c63343;font-size:19px">☷</span></div><div class="hr"></div>
-<label class="fieldname" for="query">CARI ATRIBUT KAWASAN</label><div class="input-wrap"><span class="search-icon">⌕</span><input class="search" id="query" placeholder="Taip nama / atribut kawasan…" autocomplete="off"></div>
-<div class="control"><label class="fieldname" for="cat">KATEGORI KSAS</label><select class="select" id="cat"><option value="">Semua kategori</option></select></div>
+<aside class="panel side">
 <div class="control"><div class="fieldname">TAHAP KESENSITIFAN</div>
 <label class="check-row"><input class="level" type="checkbox" value="1" checked><span class="swatch t1"></span>Tahap 1 <small>Kesensitifan tinggi</small></label>
 <label class="check-row"><input class="level" type="checkbox" value="2" checked><span class="swatch t2"></span>Tahap 2 <small>Kesensitifan sederhana</small></label>
@@ -215,13 +213,8 @@ function hideLoading(){$('loading').hidden=true}
 function zoomAll(){if(mode3d&&map3d){fitMapbox();return}if(layer&&layer.getLayers().length&&layer.getBounds().isValid())map.fitBounds(layer.getBounds(),{padding:[20,20],maxZoom:13})}
 function paint(){
 var allowed=Array.from(document.querySelectorAll('.level:checked')).map(function(x){return x.value});
-var selected=$('cat').value;
-var query=$('query').value.trim().toLocaleLowerCase();
 filtered=original.filter(function(f){
-if(!allowed.includes(level(f)))return false;
-if(selected&&cat(f)!==selected)return false;
-if(query&&!Object.values(f.properties||{}).some(function(v){return String(v==null?'':v).toLocaleLowerCase().includes(query)}))return false;
-return true
+ return allowed.includes(level(f));
 });
 if(layer)map.removeLayer(layer);
 layer=L.geoJSON({type:'FeatureCollection',features:filtered},{
@@ -253,11 +246,7 @@ window.__suoKsasOriginal=original;
 document.dispatchEvent(new CustomEvent('suo-ksas-original-ready',{detail:{count:original.length}}));
 metadata=meta||null;
 if(metadata&&metadata.source_101){$('source-note').textContent='Sumber: workspace RSN Selangor 2035 (Pengubahan) · 101 objek vektor asli';$('status').title='Dataset utama RSN 2035';}else{$('source-note').textContent='DATA ARKIB: dataset 4,886 poligon. Fail baharu 101 poligon belum dimuat naik ke repo.';}
-var categories=Array.from(new Set(original.map(cat))).sort();
-$('cat').innerHTML='<option value="">Semua kategori</option>'+categories.map(function(c,i){return '<option value="'+i+'">'+esc(c)+'</option>'}).join('');
-// Use index-based option values to avoid injecting raw property values into HTML.
-Array.from($('cat').options).slice(1).forEach(function(o,i){o.value=categories[i]});
-$('query').value='';document.querySelectorAll('.level').forEach(function(x){x.checked=true});
+document.querySelectorAll('.level').forEach(function(x){x.checked=true});
 paint();zoomAll();hideLoading();
 window.__suoKsasIndicators={featureAreaHa:original.reduce(function(sum,f){return sum+area(f)},0)};
 document.dispatchEvent(new CustomEvent('suo-ksas-indicators',{detail:window.__suoKsasIndicators}));
@@ -291,8 +280,6 @@ $('stats').addEventListener('change',function(e){
  var source=document.querySelector('.level[value="'+mirror.value+'"]');
  if(source){source.checked=mirror.checked;source.dispatchEvent(new Event('change',{bubbles:true}));}
 });
-$('cat').addEventListener('change',paint);
-$('query').addEventListener('input',paint);
 document.querySelectorAll('.level').forEach(function(x){x.addEventListener('change',paint)});
 $('mode').addEventListener('click',toggleMapMode);
 $('basemap').addEventListener('click',function(){if(mode3d&&map3d){ready3d=false;mapboxStyle=mapboxStyle.includes('light-v11')?'mapbox://styles/mapbox/satellite-streets-v12':'mapbox://styles/mapbox/light-v11';showLoading('Memuatkan gaya 3D…');map3d.setStyle(mapboxStyle);return}if(dark){map.removeLayer(satellite);map.removeLayer(fallback);light.addTo(map);tileErrors=0}else{map.removeLayer(light);map.removeLayer(fallback);satellite.addTo(map)}dark=!dark});
