@@ -75,6 +75,9 @@ function render(result){
  var rows=result.records.filter(r=>allowed.includes(r.level)&&(!cat||r.cat===cat));
  var sums={},lv={'1':0,'2':0,'3':0},total=0;
  rows.forEach(r=>{sums[r.cat]=(sums[r.cat]||0)+r.area;lv[r.level]+=r.area;total+=r.area});
+ var counts={'1':0,'2':0,'3':0};
+ rows.forEach(r=>{if(Object.prototype.hasOwnProperty.call(counts,r.level))counts[r.level]++});
+ document.dispatchEvent(new CustomEvent('suo-ksas-admin-metrics',{detail:{status:'ready',type:currentType,name:selected,count:rows.length,totalHa:total,counts:counts,byLevelHa:lv}}));
  var entries=Object.entries(sums).sort((a,b)=>b[1]-a[1]);
  var title=document.createElement('div');
  title.innerHTML='<b>'+currentType.toUpperCase()+' · '+selected+'</b>';
@@ -100,6 +103,9 @@ function render(result){
 }
 async function run(){
  var id=++serial;
+ document.dispatchEvent(new CustomEvent('suo-ksas-admin-selection',{detail:{type:currentType,name:selected}}));
+ if(selected)document.dispatchEvent(new CustomEvent('suo-ksas-admin-metrics',{detail:{status:'pending',type:currentType,name:selected}}));
+ else document.dispatchEvent(new CustomEvent('suo-ksas-admin-metrics',{detail:{status:'state',type:currentType,name:''}}));
  if(!selected){setStatus('Pilih PBT atau daerah untuk melihat keluasan mengikut kategori KSAS.');return}
  var boundaries=allData()[currentType],features=source();
  if(!boundaries){setStatus('Memuatkan sempadan '+currentType.toUpperCase()+'…');return}
