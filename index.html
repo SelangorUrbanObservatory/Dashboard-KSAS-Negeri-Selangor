@@ -28,6 +28,69 @@ main{max-width:1720px;margin:auto;padding:clamp(16px,2.4vw,34px)}
 </style>
 <link rel="icon" type="image/png" href="https://selangorurbanobservatory.github.io/SUO.Portal/assets/logos/logo-suo.png">
 <link rel="apple-touch-icon" href="https://selangorurbanobservatory.github.io/SUO.Portal/assets/logos/logo-suo.png">
+<style id="suo-geospatial-ambient-v1">
+/* SUO ambient geospatial motion — decorative, no map interactions */
+body{
+  background:
+    radial-gradient(ellipse 55% 34% at 94% 15%,rgba(41,159,140,.105),transparent 75%),
+    radial-gradient(ellipse 52% 34% at 2% 52%,rgba(222,67,79,.075),transparent 76%),
+    radial-gradient(ellipse 42% 27% at 81% 89%,rgba(235,185,58,.10),transparent 78%),
+    #f5f8f9;
+  overflow-x:hidden;
+}
+body::before,body::after{
+  content:"";
+  position:fixed;
+  pointer-events:none;
+  z-index:0;
+  inset:0;
+  will-change:transform;
+}
+body::before{
+  opacity:.49;
+  background:
+    repeating-radial-gradient(ellipse 430px 310px at 8% 38%,transparent 0 27px,rgba(49,134,122,.11) 28px,transparent 30px,transparent 53px),
+    repeating-radial-gradient(ellipse 370px 240px at 99% 78%,transparent 0 21px,rgba(190,51,66,.10) 22px,transparent 24px,transparent 46px);
+  background-size:100% 100%;
+  animation:suoContourDrift 35s ease-in-out infinite alternate;
+}
+body::after{
+  opacity:.66;
+  background:
+    radial-gradient(circle at 12% 26%,rgba(41,143,127,.3) 0 2px,transparent 3px),
+    radial-gradient(circle at 23% 61%,rgba(215,68,78,.3) 0 2px,transparent 3px),
+    radial-gradient(circle at 77% 28%,rgba(218,172,54,.45) 0 3px,transparent 4px),
+    radial-gradient(circle at 89% 71%,rgba(49,144,132,.32) 0 2px,transparent 3px),
+    radial-gradient(ellipse 17% 17% at 85% 37%,rgba(240,205,117,.11),transparent 75%),
+    radial-gradient(ellipse 24% 19% at 17% 80%,rgba(61,180,151,.11),transparent 70%);
+  animation:suoLightFloat 26s ease-in-out infinite alternate;
+}
+.topstripe,body>header,body>main{position:relative;z-index:1}
+body>main{isolation:isolate}
+.kpi,.panel,.ks-board{backdrop-filter:saturate(1.05)}
+.kpi{transition:transform .27s ease,box-shadow .27s ease}
+.kpi:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(24,61,63,.105)}
+.intro{position:relative}
+.intro::before{content:'';width:64px;height:3px;position:absolute;left:0;bottom:-13px;background:linear-gradient(90deg,#c72a43,#e7ba49);border-radius:4px}
+@keyframes suoContourDrift{
+  from{transform:translate3d(-1.5%,-1%,0) rotate(-1deg) scale(1.03)}
+  to{transform:translate3d(1.5%,1%,0) rotate(1deg) scale(1.055)}
+}
+@keyframes suoLightFloat{
+  from{transform:translate3d(-1%,1%,0) scale(1)}
+  to{transform:translate3d(1.2%,-1.1%,0) scale(1.045)}
+}
+@media(max-width:700px){
+  body::before{opacity:.28;animation-duration:50s}
+  body::after{opacity:.4;animation-duration:40s}
+  .kpi:hover{transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  body::before,body::after{animation:none!important;will-change:auto}
+  .kpi{transition:none!important}
+  .kpi:hover{transform:none}
+}
+</style>
 </head>
 <body>
 <div class="topstripe"></div>
