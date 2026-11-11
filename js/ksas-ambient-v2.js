@@ -52,6 +52,78 @@ if(hero){
  '</svg>';
  hero.appendChild(art);
 }
+
+/* SUO 3D TOPOGRAPHIC GLOW — animated elevation contours, decorative only */
+var topoStyle=document.createElement('style');
+topoStyle.id='suo-topographic-glow-v3';
+topoStyle.textContent=[
+'#suo-topo-backdrop{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;isolation:isolate}',
+'#suo-topo-backdrop .topo-cluster{position:absolute;width:min(73vw,1120px);aspect-ratio:1.42;opacity:.78;filter:drop-shadow(0 17px 16px rgba(15,100,91,.10));transform-origin:50% 50%;animation:topoHover 22s ease-in-out infinite alternate}',
+'#suo-topo-backdrop .topo-cluster.a{right:-22%;top:-18%;transform:rotate(-17deg) perspective(900px) rotateX(55deg) scale(1.07)}',
+'#suo-topo-backdrop .topo-cluster.b{left:-25%;top:46%;width:min(61vw,850px);opacity:.66;animation-duration:29s;animation-direction:alternate-reverse;transform:rotate(20deg) perspective(900px) rotateX(53deg) scale(1.05)}',
+'#suo-topo-backdrop svg{display:block;width:100%;height:100%;overflow:visible}',
+'#suo-topo-backdrop .topo-line{fill:none;stroke-width:1.9;vector-effect:non-scaling-stroke}',
+'#suo-topo-backdrop .topo-glow{fill:none;stroke-width:7;opacity:.32;filter:blur(7px);vector-effect:non-scaling-stroke}',
+'#suo-topo-backdrop .topo-spine{stroke-dasharray:9 18;stroke-width:2.8;fill:none;animation:topoFlow 15s linear infinite}',
+'.intro .ks-topo-hero{position:absolute;inset:0 0 0 auto;width:58%;height:100%;z-index:0;pointer-events:none;overflow:hidden;opacity:.93}',
+'.intro .ks-topo-hero svg{width:100%;height:100%;display:block}',
+'.intro .ks-topo-hero .topo-hero-lines{transform-origin:67% 50%;animation:topoHeroDrift 19s ease-in-out infinite alternate}',
+'.intro .ks-topo-hero .topo-hero-ridge{fill:none;stroke:#75f0ca;stroke-width:1.3;opacity:.44;vector-effect:non-scaling-stroke}',
+'.intro .ks-topo-hero .topo-hero-ridge:nth-of-type(3n){stroke:#f6d575;opacity:.56}',
+'.intro .ks-topo-hero .topo-hero-core{fill:#53e1b7;opacity:.23;filter:blur(28px)}',
+'.intro>.ks-hero-art{opacity:.43;z-index:0}',
+'.intro>div:first-child{position:relative;z-index:2}',
+'.intro{box-shadow:0 22px 57px rgba(13,67,65,.26),0 0 0 1px rgba(218,238,218,.09) inset!important}',
+'.kpi,.panel,.ks-board{box-shadow:0 12px 35px rgba(23,83,81,.095),0 1px 0 rgba(255,255,255,.72) inset!important}',
+'@keyframes topoHover{0%{translate:0 -8px;scale:1}100%{translate:24px 13px;scale:1.075}}',
+'@keyframes topoHeroDrift{0%{transform:translate3d(-8px,5px,0) scale(1)}100%{transform:translate3d(10px,-7px,0) scale(1.07)}}',
+'@keyframes topoFlow{to{stroke-dashoffset:-540}}',
+'@media(max-width:850px){#suo-topo-backdrop .topo-cluster{opacity:.43}#suo-topo-backdrop .topo-cluster.a{right:-45%;top:-9%}#suo-topo-backdrop .topo-cluster.b{left:-41%}.intro .ks-topo-hero{width:86%;opacity:.57}}',
+'@media(max-width:600px){#suo-topo-backdrop .topo-cluster{width:130vw;opacity:.39}#suo-topo-backdrop .topo-cluster.b{width:115vw;top:62%}.intro .ks-topo-hero{width:100%;opacity:.34}}',
+'@media(prefers-reduced-motion:reduce){#suo-topo-backdrop .topo-cluster,.intro .ks-topo-hero .topo-hero-lines,#suo-topo-backdrop .topo-spine{animation:none!important}}'
+].join('\n');
+document.head.appendChild(topoStyle);
+function topoPath(cx,cy,rx,ry,layer,phase){
+ var d='',steps=104;
+ for(var i=0;i<=steps;i++){
+  var t=i/steps*Math.PI*2;
+  var wobble=1+.085*Math.sin(t*3+phase)+.045*Math.cos(t*5-phase*1.7)+.027*Math.sin(t*9+layer*.23);
+  var x=cx+rx*wobble*Math.cos(t),y=cy+ry*wobble*Math.sin(t);
+  d+=(i?'L':'M')+x.toFixed(2)+' '+y.toFixed(2);
+ }
+ return d+'Z';
+}
+function makeTopoSvg(variant){
+ var hero=variant==='hero',w=hero?780:950,h=hero?390:700,cx=hero?560:500,cy=hero?192:365;
+ var lines='',start=hero?9:25,n=hero?17:24;
+ for(var i=0;i<n;i++){
+  var rx=start+i*(hero?13:16),ry=start*.58+i*(hero?7.5:11.5);
+  var d=topoPath(cx,cy,rx,ry,i,.7+i*.09);
+  if(hero){
+   lines+='<path class="topo-hero-ridge" d="'+d+'"/>';
+  }else{
+   var clr=i%5===0?'#e2b94f':i%3===0?'#cf6970':'#2aa998';
+   if(i%5===0)lines+='<path class="topo-glow" d="'+d+'" stroke="'+clr+'"/>';
+   lines+='<path class="topo-line" d="'+d+'" stroke="'+clr+'" opacity="'+(0.26+i*.009).toFixed(2)+'"/>';
+  }
+ }
+ if(hero){
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><ellipse class="topo-hero-core" cx="'+cx+'" cy="'+cy+'" rx="215" ry="108"/><g class="topo-hero-lines">'+lines+'</g><path d="M120 320 Q310 110 560 192 T850 40" stroke="#f4d373" stroke-width="2" stroke-dasharray="4 13" fill="none" opacity=".48"/></svg>';
+ }
+ var spine=topoPath(cx,cy,160,102,5,1.1);
+ return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><g>'+lines+'</g><path class="topo-spine" stroke="#e1b83d" opacity=".35" d="'+spine+'"/></svg>';
+}
+var topoBg=document.createElement('div');
+topoBg.id='suo-topo-backdrop';
+topoBg.setAttribute('aria-hidden','true');
+topoBg.innerHTML='<div class="topo-cluster a">'+makeTopoSvg('background')+'</div><div class="topo-cluster b">'+makeTopoSvg('background')+'</div>';
+document.body.insertBefore(topoBg,document.body.firstChild);
+if(hero){
+ var contour=document.createElement('div');
+ contour.className='ks-topo-hero';contour.setAttribute('aria-hidden','true');
+ contour.innerHTML=makeTopoSvg('hero');hero.appendChild(contour);
+}
+
 if(reduce)return;
 var canvas=document.createElement('canvas');canvas.id='suo-geo-canvas';canvas.setAttribute('aria-hidden','true');document.body.insertBefore(canvas,document.body.firstChild);
 var ctx=canvas.getContext('2d',{alpha:true});if(!ctx)return;
