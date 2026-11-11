@@ -74,17 +74,44 @@ topics.forEach(t=>{
  let b=document.createElement('button');b.type='button';b.dataset.topic=t[0];b.textContent=t[1];b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>setTopic(t[0]));$('ki-themes').appendChild(b);
 });
 setTopic('forest');
+let stateMetrics={count:null,sum:null,dominant:null,source:null};
+function updateAreaMetrics(detail){
+ const d=detail||{};
+ if(d.status==='state'){
+  if(stateMetrics.count!==null)$('ki-count').textContent=stateMetrics.count;
+  if(stateMetrics.sum!==null)$('ki-sum').textContent=stateMetrics.sum;
+  if(stateMetrics.dominant!==null)$('ki-dominant').textContent=stateMetrics.dominant;
+  if(stateMetrics.source!==null)$('ki-source').textContent=stateMetrics.source;
+  return;
+ }
+ if(!d.name)return;
+ if(d.status!=='ready'){
+  $('ki-count').textContent='—';$('ki-sum').textContent='—';$('ki-dominant').textContent='—';
+  $('ki-source').textContent='Menunggu pengiraan spatial untuk '+d.name+'.';
+  return;
+ }
+ $('ki-count').textContent=format(d.count);
+ $('ki-sum').textContent=format(d.totalHa)+' ha';
+ const values=Object.entries(d.counts||{}).sort((a,b)=>b[1]-a[1]);
+ $('ki-dominant').textContent=values.length&&values[0][1]?'Tahap '+values[0][0]:'—';
+ $('ki-source').textContent='Kawasan '+d.name+' ('+d.type.toUpperCase()+') · luas hasil persilangan setiap fitur, mungkin bertindih. Bilangan menunjukkan fitur terpotong, bukan kawasan unik.';
+}
+document.addEventListener('suo-ksas-admin-metrics',e=>updateAreaMetrics(e.detail));
 document.addEventListener('suo-ksas-data',e=>{
  const d=e.detail||{},n=Number(d.total||0),c=d.counts||{};
+ stateMetrics.count=format(n);
  $('ki-count').textContent=format(n);
  let levels=['1','2','3'].map(k=>({k,n:Number(c[k]||0)})).sort((a,b)=>b.n-a.n);
  $('ki-dominant').textContent=levels[0].n?'Tahap '+levels[0].k:'—';
+ stateMetrics.dominant=$('ki-dominant').textContent;
  $('ki-source').textContent=d.source101?'Sumber: dataset utama 101 objek vektor RSN Selangor 2035 (Pengubahan).':'Perhatian: dataset arkib sedang digunakan; sahkan dataset utama sebelum melaporkan angka.';
+ stateMetrics.source=$('ki-source').textContent;
 });
 document.addEventListener('suo-ksas-indicators',e=>{
  const n=e.detail&&e.detail.featureAreaHa;
- if(typeof n==='number'&&Number.isFinite(n))$('ki-sum').textContent=format(n)+' ha';
+ if(typeof n==='number'&&Number.isFinite(n)){stateMetrics.sum=format(n)+' ha';$('ki-sum').textContent=stateMetrics.sum;}
 });
 if(window.__suoKsasData)document.dispatchEvent(new CustomEvent('suo-ksas-data',{detail:window.__suoKsasData}));
 if(window.__suoKsasIndicators)document.dispatchEvent(new CustomEvent('suo-ksas-indicators',{detail:window.__suoKsasIndicators}));
+if(window.__suoKsasAdminMetrics)updateAreaMetrics(window.__suoKsasAdminMetrics);
 })();
