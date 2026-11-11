@@ -97,7 +97,7 @@ body>main{isolation:isolate}
 <header><div class="brand"><div class="mark"><img src="https://selangorurbanobservatory.github.io/SUO.Portal/assets/logos/logo-suo.png" alt="Logo rasmi Selangor Urban Observatory" loading="eager"></div><div><div class="brand-title">SELANGOR URBAN OBSERVATORY</div><div class="brand-sub">VISUALISING SELANGOR, EMPOWERING DECISION</div></div></div><div class="headright"><span class="suotag">URBAN INTELLIGENCE</span><span class="live" id="status">Memuatkan data…</span></div></header>
 <main>
 <div class="breadcrumb">SUO <span> / </span> Dashboard Tematik <span> / </span> <b>KSAS Negeri Selangor</b></div>
-<div class="intro"><div><div class="eyebrow">ENVIRONMENTAL INTELLIGENCE · SELANGOR</div><h1>Kawasan Sensitif Alam Sekitar</h1><p>Eksplorasi spatial KSAS Negeri Selangor melalui peta interaktif, taburan tahap kesensitifan dan maklumat geospatial bersepadu.</p></div><div class="meta-pill">◈ DATA SPATIAL · GEOJSON</div></div>
+<div class="intro"><div><div class="eyebrow">ENVIRONMENTAL INTELLIGENCE · SELANGOR</div><h1>Kawasan Sensitif Alam Sekitar</h1><p>Eksplorasi spatial KSAS Negeri Selangor melalui peta interaktif, taburan tahap kesensitifan dan maklumat geospatial bersepadu.</p></div></div>
 <section class="kpis" aria-label="Ringkasan KSAS">
 <div class="kpi"><span class="kico">◈</span><div class="klabel">Jumlah keluasan poligon</div><div class="kvalue" id="total">—</div><div class="ksub">Hektar · semua fitur</div></div>
 <div class="kpi"><span class="kico">▰</span><div class="klabel">KSAS Tahap 1</div><div class="kvalue" id="one">—</div><div class="ksub">Hektar · jumlah keluasan fitur</div></div>
@@ -113,9 +113,7 @@ body>main{isolation:isolate}
 <label class="check-row"><input class="level" type="checkbox" value="1" checked><span class="swatch t1"></span>Tahap 1 <small>Kesensitifan tinggi</small></label>
 <label class="check-row"><input class="level" type="checkbox" value="2" checked><span class="swatch t2"></span>Tahap 2 <small>Kesensitifan sederhana</small></label>
 <label class="check-row"><input class="level" type="checkbox" value="3" checked><span class="swatch t3"></span>Tahap 3 <small>Kesensitifan rendah</small></label><p class="data-note" id="source-note">Menunggu pengesahan dataset RSN 2035...</p></div>
-<div class="hr"></div><div class="btnline"><button class="btn primary" id="reset">Set semula</button><button class="btn" id="zoom">Paparkan semua</button></div>
-<label class="uploadlink">＋ Import GeoJSON sendiri<input type="file" id="upload" accept=".json,.geojson"></label>
-<p class="data-note">Dataset rasmi repo dimuatkan secara automatik. Import manual hanya untuk sesi pelayar ini.</p>
+
 </aside>
 <section class="panel map-panel"><div class="map-head"><div><h2>Peta Interaktif KSAS Selangor</h2><div class="map-caption" id="mapcaption">Taburan spatial tahap kesensitifan alam sekitar</div></div><div class="map-actions"><button id="mode" title="Tukar 2D / 3D">◈ 3D Buildings</button><button id="basemap" title="Tukar peta asas">Peta asas</button><button id="full" title="Paparan penuh">⛶ Besarkan</button></div></div>
 <div class="map-shell"><div id="map"></div><div id="map3d"></div><div class="map-loading" id="loading">Memuatkan data geospatial…</div></div>
@@ -123,8 +121,8 @@ body>main{isolation:isolate}
 <aside class="panel side right"><div class="section-head"><div><h2 class="paneltitle">Analitik KSAS</h2><div class="panelsub">Ringkasan taburan mengikut tahap</div></div><span style="color:#c63343">▥</span></div>
 <div class="stats" id="stats"><div class="info-empty">Menunggu data…</div></div><div class="hr"></div>
 <div><h2 class="paneltitle" style="margin-bottom:14px">Maklumat Kawasan</h2><div class="info" id="info"><div class="info-empty">◈<p>Pilih mana-mana poligon pada peta untuk melihat atribut kawasan.</p></div></div></div>
-<div class="alert"><b>Nota penggunaan data</b><div>Angka keluasan adalah indikatif. Jumlah mengikut tahap boleh bertindih. Status sumber, pewartaan dan keselarasan RSN/RT masih memerlukan pengesahan. Penapis daerah/PBT memerlukan spatial join sempadan rasmi.</div></div>
-<div class="right-export"><button class="btn primary full" id="export">↓ Eksport GeoJSON Ditapis</button></div>
+
+
 </aside></div>
 <div class="footer"><div>© 2026 <b>SELANGOR URBAN OBSERVATORY</b> · PLANMalaysia Selangor</div><div>Satu Negeri. Pelbagai Dimensi. Satu Observatori.</div></div>
 </main>
@@ -276,14 +274,10 @@ ingest({type:'FeatureCollection',features:fs},m)
 $('cat').addEventListener('change',paint);
 $('query').addEventListener('input',paint);
 document.querySelectorAll('.level').forEach(function(x){x.addEventListener('change',paint)});
-$('reset').addEventListener('click',function(){$('cat').value='';$('query').value='';document.querySelectorAll('.level').forEach(function(x){x.checked=true});paint();zoomAll()});
-$('zoom').addEventListener('click',zoomAll);
 $('mode').addEventListener('click',toggleMapMode);
 $('basemap').addEventListener('click',function(){if(mode3d&&map3d){ready3d=false;mapboxStyle=mapboxStyle.includes('light-v11')?'mapbox://styles/mapbox/satellite-streets-v12':'mapbox://styles/mapbox/light-v11';showLoading('Memuatkan gaya 3D…');map3d.setStyle(mapboxStyle);return}if(dark){map.removeLayer(satellite);map.removeLayer(fallback);light.addTo(map);tileErrors=0}else{map.removeLayer(light);map.removeLayer(fallback);satellite.addTo(map)}dark=!dark});
 $('full').addEventListener('click',function(){var el=document.querySelector('.map-panel');if(document.fullscreenElement){document.exitFullscreen()}else if(el.requestFullscreen){el.requestFullscreen()}});
 document.addEventListener('fullscreenchange',function(){if(document.fullscreenElement){$('map').style.height='calc(100vh - 126px)'}else{$('map').style.height=''}setTimeout(function(){map.invalidateSize();if(map3d)map3d.resize()},60)});
-$('upload').addEventListener('change',async function(e){if(!e.target.files.length)return;try{showLoading('Membaca fail…');ingest(JSON.parse(await e.target.files[0].text()),null)}catch(err){showLoading('Import gagal: '+err.message)}});
-$('export').addEventListener('click',function(){if(!filtered.length){alert('Tiada poligon untuk dieksport');return}var blob=new Blob([JSON.stringify({type:'FeatureCollection',features:filtered})],{type:'application/geo+json'});var url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='KSAS-Selangor-Ditapis.geojson';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000)});
 init();
 })();
 </script>
