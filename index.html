@@ -250,8 +250,10 @@ $('cat').innerHTML='<option value="">Semua kategori</option>'+categories.map(fun
 Array.from($('cat').options).slice(1).forEach(function(o,i){o.value=categories[i]});
 $('query').value='';document.querySelectorAll('.level').forEach(function(x){x.checked=true});
 paint();zoomAll();hideLoading();
-document.dispatchEvent(new CustomEvent('suo-ksas-indicators',{detail:{featureAreaHa:original.reduce(function(sum,f){return sum+area(f)},0)}}));
-document.dispatchEvent(new CustomEvent('suo-ksas-data',{detail:{source101:!!(metadata&&metadata.source_101),counts:{'1':original.filter(function(f){return level(f)==='1'}).length,'2':original.filter(function(f){return level(f)==='2'}).length,'3':original.filter(function(f){return level(f)==='3'}).length},total:original.length}}));
+window.__suoKsasIndicators={featureAreaHa:original.reduce(function(sum,f){return sum+area(f)},0)};
+document.dispatchEvent(new CustomEvent('suo-ksas-indicators',{detail:window.__suoKsasIndicators}));
+window.__suoKsasData={source101:!!(metadata&&metadata.source_101),counts:{'1':original.filter(function(f){return level(f)==='1'}).length,'2':original.filter(function(f){return level(f)==='2'}).length,'3':original.filter(function(f){return level(f)==='3'}).length},total:original.length};
+document.dispatchEvent(new CustomEvent('suo-ksas-data',{detail:window.__suoKsasData}));
 }
 async function init(){
 try{
