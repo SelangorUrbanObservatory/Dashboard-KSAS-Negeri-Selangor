@@ -30,8 +30,8 @@ var css=[
 '.ks-admin-result .ks-area-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}',
 '.ks-admin-result .ks-area-summary div{background:#eff7f1;border-radius:8px;padding:10px 7px;font-size:10px;color:#65806f}',
 '.ks-admin-result .ks-area-summary b{display:block;font-size:14px;margin-top:6px;color:#28684d}',
-'@media(max-width:1120px){.ks-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ks-admin-filter.type{grid-column:1;grid-row:3}.ks-admin-filter.area{grid-column:2;grid-row:3}}',
-'@media(max-width:560px){.ks-filterbar{grid-template-columns:1fr!important}.ks-filterbar>label.fieldname{grid-column:1!important;grid-row:auto!important}.ks-filterbar>.input-wrap{grid-column:1!important;grid-row:auto!important}.ks-filterbar>.control:has(#cat){grid-column:1!important;grid-row:auto!important}.ks-admin-filter.type,.ks-admin-filter.area{grid-column:1;grid-row:auto}}'
+'@media(max-width:1120px){.ks-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ks-admin-filter.type{grid-column:1!important;grid-row:auto!important}.ks-admin-filter.area{grid-column:2!important;grid-row:auto!important}}',
+'@media(max-width:560px){.ks-filterbar{grid-template-columns:1fr!important;padding:14px}.ks-admin-filter.type,.ks-admin-filter.area{grid-column:1!important;grid-row:auto!important}}'
 ].join('\n');
 var style=document.createElement('style');style.id='ksas-admin-area-style';style.textContent=css;document.head.appendChild(style);
 var typeBox=document.createElement('div');typeBox.className='ks-admin-filter type';
