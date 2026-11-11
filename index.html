@@ -84,11 +84,10 @@ function fitMapbox(){
 }
 function setupMapbox(){
  if(!window.mapboxgl||!mapboxgl.supported()){alert('Mapbox 3D memerlukan pelayar yang menyokong WebGL.');return false}
- var token=sessionStorage.getItem('suo_ksas_mapbox_token')||'';
- if(!token){token=prompt('Masukkan Mapbox public access token (pk...) untuk aktifkan 3D Buildings:')||'';token=token.trim()}
- if(!token.startsWith('pk.')){alert('Public access token Mapbox yang sah diperlukan. Mod 2D kekal tersedia.');return false}
- sessionStorage.setItem('suo_ksas_mapbox_token',token);
- mapboxgl.accessToken=token;
+ 
+var token = 'pk.eyJ1IjoiYXBhaTE5ODkiLCJhIjoiY213YmRmazJnMG02YjMwcXdmMWhjZXRybyJ9.lcOZ-OzWHRHF8-Ccx_uQCw';
+mapboxgl.accessToken = token;
+
  try{map3d=new mapboxgl.Map({container:'map3d',style:mapboxStyle,center:[101.55,3.25],zoom:9,pitch:55,bearing:0,antialias:true})}
  catch(e){alert('Gagal memulakan Mapbox: '+e.message);map3d=null;return false}
  map3d.addControl(new mapboxgl.NavigationControl({visualizePitch:true}),'bottom-right');
