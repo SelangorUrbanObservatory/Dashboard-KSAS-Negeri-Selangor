@@ -1,5 +1,8 @@
 (function(){
 'use strict';
+const SUO_PBT_ORDER=['MBSA','MBPJ','MBSJ','MBDK','MPS','MPAJ','MPKJ','MPSp','MPKL','MPKS','MPHS','MDSB'];
+const SUO_DAERAH_ORDER=['Petaling','Klang','Gombak','Hulu Langat','Sepang','Kuala Langat','Kuala Selangor','Hulu Selangor','Sabak Bernam'];
+
 const ROOT='https://selangorurbanobservatory.github.io/3D-Geoportal/data/pentadbiran/';
 const files={pbt:'sempadan_pbt_selangor_2024.geojson',daerah:'sempadan_daerah_selangor.geojson'};
 const shortcuts={'Majlis Bandaraya Shah Alam':'MBSA','Majlis Bandaraya Petaling Jaya':'MBPJ','Majlis Bandaraya Subang Jaya':'MBSJ','Majlis Bandaraya Diraja Klang':'MBDK','Majlis Perbandaran Selayang':'MPS','Majlis Perbandaran Ampang Jaya':'MPAJ','Majlis Perbandaran Kajang':'MPKJ','Majlis Perbandaran Sepang':'MPSp','Majlis Perbandaran Kuala Langat':'MPKL','Majlis Perbandaran Kuala Selangor':'MPKS','Majlis Perbandaran Hulu Selangor':'MPHS','Majlis Daerah Sabak Bernam':'MDSB'};
@@ -156,7 +159,7 @@ async function load(type){
      icon:L.divIcon({className:'',html:'<div class="ks-boundary-text '+type+'">'+text+'</div>',iconSize:[0,0],iconAnchor:[0,0]})});
  }).filter(Boolean);
  labelLayers[type]=L.layerGroup(markers);
- const labels=Array.from(new Set(geo.features.map(f=>labelFor(f,type)))).sort((a,b)=>a.localeCompare(b,'ms'));
+ const labels=Array.from(new Set(geo.features.map(f=>labelFor(f,type)))).sort((a,b)=>{const order=type==='pbt'?SUO_PBT_ORDER:SUO_DAERAH_ORDER;const ai=order.indexOf(a),bi=order.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'ms')});
  for(const n of labels){const o=document.createElement('option');o.value=n;o.textContent=n;configs[type].target.appendChild(o)}
  sync3D();
  document.dispatchEvent(new CustomEvent('suo-ksas-boundary-loaded',{detail:{type,features:geo.features.length,labels}}));
