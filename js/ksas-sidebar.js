@@ -1,0 +1,33 @@
+(function(){
+'use strict';
+if(document.getElementById('suo-ksas-sidebar'))return;
+const menu=[{"id":"peta-ksas","title":"Peta Interaktif","icon":"▧"},{"id":"ksas-analytics-panel","title":"Analitik KSAS","icon":"▥"},{"id":"ksas-intelligence","title":"Spatial Intelligence","icon":"◈"},{"id":"rsn-ksas","title":"Dasar RSN 2035","icon":"▤"},{"id":"ppp-ksas","title":"PPPKSAS","icon":"❀"},{"id":"jtpksas-selangor","title":"JTPKSAS Selangor","icon":"▣"}];
+const workspace=document.querySelector('.workspace');
+const analytics=workspace&&workspace.querySelector('.right');
+if(analytics&&!analytics.id)analytics.id='ksas-analytics-panel';
+if(workspace&&!workspace.id)workspace.id='peta-ksas';
+const style=document.createElement('style');style.id='ksas-sidebar-styles';style.textContent=":root{--ks-side-width:218px}\nbody{overflow-x:hidden}\n#suo-ksas-sidebar{position:fixed;inset:0 auto 0 0;width:218px;z-index:1200;background:linear-gradient(160deg,rgba(4,61,48,.94),rgba(15,103,73,.91) 52%,rgba(5,65,51,.98)),radial-gradient(ellipse at 80% 75%,#65a87f,transparent 60%),#0b5a49;color:white;display:flex;flex-direction:column;overflow:auto;box-shadow:8px 0 25px #183c3020}\n#suo-ksas-sidebar:before{content:'';position:absolute;inset:0;pointer-events:none;opacity:.15;background:repeating-radial-gradient(ellipse at 85% 70%,transparent 0 26px,#d7f5e2 27px,transparent 28px 50px)}\n#suo-ksas-sidebar>*{position:relative;z-index:1}\n.ks-side-logo{padding:31px 12px 25px;text-align:center;border-bottom:1px solid #ffffff24;display:flex;align-items:center;flex-direction:column;gap:9px}\n.ks-side-logo img{width:76px;height:76px;object-fit:contain}\n.ks-side-logo strong{font:800 12px 'Plus Jakarta Sans',sans-serif;letter-spacing:1px}\n.ks-side-logo small{font-size:9px;letter-spacing:1.4px;color:#d0eadf;font-weight:700}\n.ks-side-links{padding:22px 11px;display:flex;flex-direction:column;gap:7px}\n.ks-side-link{display:flex;align-items:center;gap:12px;padding:12px 13px;min-height:47px;color:#effcf4;text-decoration:none;border-radius:10px;font-size:12px;font-weight:800;transition:background .2s ease}\n.ks-side-link .ks-side-icon{font-size:19px;width:20px;text-align:center;flex:none}\n.ks-side-link:hover,.ks-side-link:focus-visible{background:#ffffff25;color:white}\n.ks-side-link[aria-current='location']{background:linear-gradient(100deg,#b42f40,#d24748);box-shadow:0 7px 18px #0c392d35;color:white}\n.ks-side-foot{margin-top:auto;padding:20px 15px;border-top:1px solid #ffffff25;color:#d3eadf;font-size:10px;line-height:1.7}\nbody>.topstripe,body>header,body>main{margin-left:218px}\nbody>main{max-width:none!important;width:auto}\n#suo-ksas-menu-toggle,#suo-ksas-menu-backdrop{display:none}\n#peta-ksas,#ksas-analytics-panel,#ksas-intelligence,#rsn-ksas,#ppp-ksas,#jtpksas-selangor{scroll-margin-top:24px}\n@media(max-width:1080px){#suo-ksas-sidebar{transform:translateX(-105%);width:min(278px,84vw);transition:transform .25s;z-index:2102}body.ks-sidebar-open #suo-ksas-sidebar{transform:translateX(0)}body>.topstripe,body>header,body>main{margin-left:0}body>header{justify-content:flex-start;gap:12px}#suo-ksas-menu-toggle{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #dce7e0;border-radius:10px;background:#fff;color:#22644d;font-size:22px;flex:none;cursor:pointer}#suo-ksas-menu-backdrop{display:none;position:fixed;inset:0;z-index:2101;background:#091e185e;border:0}body.ks-sidebar-open #suo-ksas-menu-backdrop{display:block}}\n@media(max-width:520px){body>header{gap:8px;padding:12px}#suo-ksas-menu-toggle{width:37px;height:37px}body>main{padding:13px!important}}\n@media(prefers-reduced-motion:reduce){#suo-ksas-sidebar,.ks-side-link{transition:none!important}}";document.head.appendChild(style);
+const aside=document.createElement('aside');aside.id='suo-ksas-sidebar';aside.setAttribute('aria-label','Navigasi Dashboard KSAS');
+aside.innerHTML='<div class="ks-side-logo"><img alt="Logo SUO" src="https://selangorurbanobservatory.github.io/SUO.Portal/assets/logos/logo-suo.png"><strong>KSAS SELANGOR</strong><small>ENVIRONMENTAL INTELLIGENCE</small></div>'+
+'<nav class="ks-side-links" aria-label="Navigasi seksyen KSAS">'+menu.map(m=>'<a class="ks-side-link" href="#'+m.id+'" data-section="'+m.id+'"><span class="ks-side-icon" aria-hidden="true">'+m.icon+'</span>'+m.title+'</a>').join('')+'</nav>'+
+'<div class="ks-side-foot"><strong>SELANGOR URBAN OBSERVATORY</strong><div>Satu Negeri. Pelbagai Dimensi. Satu Observatori.</div></div>';
+document.body.insertBefore(aside,document.body.firstChild);
+const backdrop=document.createElement('button');backdrop.id='suo-ksas-menu-backdrop';backdrop.type='button';backdrop.setAttribute('aria-label','Tutup menu');document.body.appendChild(backdrop);
+const toggle=document.createElement('button');toggle.id='suo-ksas-menu-toggle';toggle.type='button';toggle.setAttribute('aria-label','Buka menu');toggle.setAttribute('aria-expanded','false');toggle.textContent='☰';
+const header=document.querySelector('body>header');if(header)header.insertBefore(toggle,header.firstChild);
+function close(){document.body.classList.remove('ks-sidebar-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Buka menu')}
+function open(){document.body.classList.add('ks-sidebar-open');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Tutup menu')}
+toggle.addEventListener('click',()=>document.body.classList.contains('ks-sidebar-open')?close():open());
+backdrop.addEventListener('click',close);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+function setActive(id){aside.querySelectorAll('.ks-side-link').forEach(a=>a.dataset.section===id?a.setAttribute('aria-current','location'):a.removeAttribute('aria-current'))}
+aside.querySelectorAll('.ks-side-link').forEach(a=>a.addEventListener('click',()=>{setActive(a.dataset.section);close()}));
+if('IntersectionObserver' in window){
+ const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio);if(visible[0])setActive(visible[0].target.id)},{rootMargin:'-10% 0px -65% 0px',threshold:[0,.15,.4]});
+ menu.forEach(m=>{const el=document.getElementById(m.id);if(el)observer.observe(el)});
+}
+const initial=decodeURIComponent(location.hash.slice(1));setActive(menu.some(m=>m.id===initial)?initial:'peta-ksas');
+if(initial){const el=document.getElementById(initial);if(el)requestAnimationFrame(()=>el.scrollIntoView({block:'start'}))}
+window.addEventListener('resize',()=>{if(window.innerWidth>1080)close()},{passive:true});
+requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
+})();
