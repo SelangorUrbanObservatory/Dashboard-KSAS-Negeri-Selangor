@@ -124,6 +124,28 @@ if(hero){
  contour.innerHTML=makeTopoSvg('hero');hero.appendChild(contour);
 }
 
+/* Soft neutral contour treatment: intentionally restrained, no saturated glow */
+var subtle=document.createElement('style');
+subtle.id='suo-soft-contour-v4';
+subtle.textContent=[
+'html,body{background:#f7f9f9!important}',
+'body{background:radial-gradient(ellipse at 84% 14%,#eff3f3 0%,transparent 40%),radial-gradient(ellipse at 8% 74%,#f1f4f4 0%,transparent 42%),#f8faf9!important}',
+'#suo-topo-backdrop .topo-cluster{opacity:.19!important;filter:grayscale(1)!important;animation-duration:48s!important}',
+'#suo-topo-backdrop .topo-cluster.b{opacity:.12!important}',
+'#suo-topo-backdrop .topo-glow{display:none!important}',
+'#suo-topo-backdrop .topo-line{stroke:#81949a!important;stroke-width:1.05!important;opacity:.45!important}',
+'#suo-topo-backdrop .topo-spine{stroke:#9ca9ae!important;opacity:.13!important;stroke-width:1.1!important}',
+'.intro .ks-topo-hero{opacity:.14!important;filter:grayscale(1)!important}',
+'.intro .ks-topo-hero .topo-hero-ridge{stroke:#c9d8d6!important;opacity:.45!important;stroke-width:1.1!important}',
+'.intro .ks-topo-hero .topo-hero-core{display:none!important}',
+'.intro>.ks-hero-art{opacity:.12!important;filter:grayscale(1)!important}',
+'#suo-geo-canvas{opacity:.13!important;filter:grayscale(1)!important}',
+'main>.intro{background:linear-gradient(116deg,#193f42,#225e59)!important}',
+'@media(max-width:650px){#suo-topo-backdrop .topo-cluster{opacity:.12!important}.intro .ks-topo-hero{opacity:.08!important}#suo-geo-canvas{opacity:.08!important}}',
+'@media(prefers-reduced-motion:reduce){#suo-topo-backdrop .topo-cluster,.intro .ks-topo-hero .topo-hero-lines{animation:none!important}}'
+].join('\n');
+document.head.appendChild(subtle);
+
 if(reduce)return;
 var canvas=document.createElement('canvas');canvas.id='suo-geo-canvas';canvas.setAttribute('aria-hidden','true');document.body.insertBefore(canvas,document.body.firstChild);
 var ctx=canvas.getContext('2d',{alpha:true});if(!ctx)return;
