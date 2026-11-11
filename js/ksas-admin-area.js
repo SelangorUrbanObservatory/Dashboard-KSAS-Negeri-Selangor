@@ -7,15 +7,18 @@ var filterbar=document.querySelector('.ks-filterbar');
 var right=document.querySelector('.workspace>.right');
 if(!filterbar||!right)return;
 var css=[
-'.ks-filterbar{grid-template-columns:repeat(4,minmax(0,1fr))!important}',
-'.ks-filterbar>label.fieldname{grid-column:1!important;grid-row:1!important}',
-'.ks-filterbar>.input-wrap{grid-column:1!important;grid-row:2!important}',
-'.ks-filterbar>.control:has(#cat){grid-column:2!important;grid-row:1/3!important}',
+'.ks-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}',
+'.ks-admin-filter.type{grid-column:1!important;grid-row:auto!important}',
+'.ks-admin-filter.area{grid-column:2!important;grid-row:auto!important}',
+
+
+
+
 '.ks-admin-filter{margin:0;min-width:0}',
 '.ks-admin-filter .fieldname{margin:0 0 9px}',
 '.ks-admin-filter select{width:100%;min-width:0;height:43px;background:#fafcfa;border:1px solid #e1e9e4;border-radius:9px;padding:10px;font:700 12px "DM Sans",sans-serif;color:#344e40}',
-'.ks-admin-filter.type{grid-column:3;grid-row:1/3;align-self:end}',
-'.ks-admin-filter.area{grid-column:4;grid-row:1/3;align-self:end}',
+
+
 '.ks-admin-result{border-top:1px solid #e7ede9;margin-top:14px;padding-top:13px}',
 '.ks-admin-result h3{font:800 13px "Plus Jakarta Sans",sans-serif;margin:0 0 5px;color:#2d5748}',
 '.ks-admin-result p{font-size:10px;color:#87988d;line-height:1.65;margin:6px 0 10px}',
@@ -71,8 +74,7 @@ function ensureTurf(){
 function bboxOverlap(a,b){return a[0]<=b[2]&&a[2]>=b[0]&&a[1]<=b[3]&&a[3]>=b[1]}
 function render(result){
  var allowed=Array.from(document.querySelectorAll('.level:checked')).map(x=>String(x.value));
- var cat=document.getElementById('cat')?.value||'';
- var rows=result.records.filter(r=>allowed.includes(r.level)&&(!cat||r.cat===cat));
+ var rows=result.records.filter(r=>allowed.includes(r.level));
  var sums={},lv={'1':0,'2':0,'3':0},total=0;
  rows.forEach(r=>{sums[r.cat]=(sums[r.cat]||0)+r.area;lv[r.level]+=r.area;total+=r.area});
  var counts={'1':0,'2':0,'3':0};
@@ -147,7 +149,6 @@ $('ksas-area-name').addEventListener('change',e=>{selected=e.target.value;syncMa
 document.addEventListener('suo-ksas-boundary-data',e=>{if(e.detail.type===currentType){populate();run()}});
 document.addEventListener('suo-ksas-original-ready',()=>{cache.clear();run()});
 document.addEventListener('suo-ksas-boundary-selected',e=>{if(!e.detail||!e.detail.name)return;currentType=e.detail.type;selected=e.detail.name;$('ksas-area-type').value=currentType;populate();run()});
-document.getElementById('cat')?.addEventListener('change',()=>{if(selected&&cache.has(currentType+'|'+selected+'|'+source().length))render(cache.get(currentType+'|'+selected+'|'+source().length))});
 document.querySelectorAll('.level').forEach(x=>x.addEventListener('change',()=>{var key=currentType+'|'+selected+'|'+source().length;if(selected&&cache.has(key))render(cache.get(key))}));
 populate();run();
 })();
