@@ -99,7 +99,7 @@ body>main{isolation:isolate}
 <div class="breadcrumb">SUO <span> / </span> Dashboard Tematik <span> / </span> <b>KSAS Negeri Selangor</b></div>
 <div class="intro"><div><div class="eyebrow">ENVIRONMENTAL INTELLIGENCE · SELANGOR</div><h1>Kawasan Sensitif Alam Sekitar</h1><p>Eksplorasi spatial KSAS Negeri Selangor melalui peta interaktif, taburan tahap kesensitifan dan maklumat geospatial bersepadu.</p></div><div class="meta-pill">◈ DATA SPATIAL · GEOJSON</div></div>
 <section class="kpis" aria-label="Ringkasan KSAS">
-<div class="kpi"><span class="kico">◈</span><div class="klabel">Liputan unik dataset</div><div class="kvalue" id="total">—</div><div class="ksub">Hektar · semua fitur</div></div>
+<div class="kpi"><span class="kico">◈</span><div class="klabel">Jumlah keluasan poligon</div><div class="kvalue" id="total">—</div><div class="ksub">Hektar · semua fitur</div></div>
 <div class="kpi"><span class="kico">▰</span><div class="klabel">KSAS Tahap 1</div><div class="kvalue" id="one">—</div><div class="ksub">Hektar · jumlah keluasan fitur</div></div>
 <div class="kpi"><span class="kico">▰</span><div class="klabel">KSAS Tahap 2</div><div class="kvalue" id="two">—</div><div class="ksub">Hektar · jumlah keluasan fitur</div></div>
 <div class="kpi"><span class="kico">▰</span><div class="klabel">KSAS Tahap 3</div><div class="kvalue" id="three">—</div><div class="ksub">Hektar · jumlah keluasan fitur</div></div>
@@ -232,8 +232,8 @@ if(mode3d&&ready3d)put3D();
 var vals={'1':0,'2':0,'3':0},nums={'1':0,'2':0,'3':0};
 filtered.forEach(function(f){var k=level(f);if(k in vals){vals[k]+=area(f);nums[k]++}});
 $('one').textContent=fmt(vals['1']);$('two').textContent=fmt(vals['2']);$('three').textContent=fmt(vals['3']);$('count').textContent=fmt(filtered.length);
-$('total').textContent=metadata&&filtered.length===original.length&&metadata.unique_coverage_geometry_ha!=null?fmt(metadata.unique_coverage_geometry_ha):'—';
-$('total').parentNode.querySelector('.ksub').textContent=metadata&&filtered.length===original.length?'Hektar · semua fitur':'Liputan unik belum dikira';
+$('total').textContent=fmt(filtered.reduce(function(sum,f){return sum+area(f)},0));
+$('total').parentNode.querySelector('.ksub').textContent='Hektar · jumlah geometri (boleh bertindih)';
 $('stats').innerHTML=['1','2','3'].map(function(k){return '<div class="statrow"><div class="stat-top"><span><i class="swatch t'+k+'"></i> Tahap '+k+'</span><b>'+fmt(vals[k])+' ha</b></div><div class="bar"><div class="fill" style="background:'+palette[k]+';width:'+(100*vals[k]/Math.max(vals['1'],vals['2'],vals['3'],1))+'%"></div></div><div class="ksub">'+fmt(nums[k])+' poligon</div></div>'}).join('');
 $('mapcaption').textContent=fmt(filtered.length)+' daripada '+fmt(original.length)+' poligon dipaparkan';
 $('mapstatus').textContent=filtered.length?'Klik poligon untuk butiran':'Tiada kawasan sepadan dengan penapis';
@@ -290,4 +290,5 @@ init();
 <script src="./js/ksas-story.js?v=3-premium"></script>
 <script src="./js/ksas-ambient-v2.js?v=1"></script>
 <script src="./js/ksas-rsn.js?v=1"></script>
+<script src="./js/ksas-source-sync.js?v=1"></script>
 </body></html>
