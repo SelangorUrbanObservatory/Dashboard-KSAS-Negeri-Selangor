@@ -174,7 +174,7 @@ mapboxgl.accessToken = token;
   try{
    if(!map3d.getSource(buildings3dSource))map3d.addSource(buildings3dSource,{type:'vector',url:'mapbox://mapbox.mapbox-streets-v8'});
    map3d.addLayer({id:'ksas-buildings',type:'fill-extrusion',source:buildings3dSource,'source-layer':'building',minzoom:11,filter:['==',['get','extrude'],'true'],paint:{'fill-extrusion-color':'#c5c8cf','fill-extrusion-height':['max',3,['to-number',['get','height'],8]],'fill-extrusion-base':['to-number',['get','min_height'],0],'fill-extrusion-opacity':0.76}});
-   ready3d=true;put3D();hideLoading();
+   ready3d=true;put3D();window.__suoKsasMapbox=map3d;document.dispatchEvent(new Event('suo-ksas-mapbox-ready'));hideLoading();
    $('mapstatus').textContent='Mapbox 3D Buildings · Zoom ke kawasan bandar untuk lihat bangunan';
   }catch(e){showLoading('Lapisan Mapbox gagal: '+e.message)}
  });
@@ -305,5 +305,5 @@ init();
 <script src="./js/ksas-source-sync.js?v=1"></script>
 <script src="./js/ksas-intelligence.js?v=1"></script>
 <script src="./js/ksas-flagship-layout.js?v=2-levels-in-analytics"></script>
-<script src="./js/ksas-boundaries.js?v=1"></script>
+<script src="./js/ksas-boundaries.js?v=2-pbt-daerah-3d"></script>
 </body></html>
