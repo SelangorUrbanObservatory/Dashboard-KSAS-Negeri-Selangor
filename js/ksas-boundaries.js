@@ -18,6 +18,8 @@ const css=[
 '.ks-boundary-status{font-size:10px;line-height:1.5;color:#84978e;margin:8px 0 0}',
 '.ks-admin-selection{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}',
 '.ks-admin-selection select{width:100%;min-width:0;padding:9px;border:1px solid #dce7e1;border-radius:8px;background:#fff;font-size:11px;color:#496357}',
+'.ks-boundary-text{background:rgba(255,255,255,.93);border:1px solid #cdded8;border-radius:7px;box-shadow:0 2px 8px #163a3224;color:#315849;font:800 11px "DM Sans",sans-serif;padding:4px 7px;white-space:nowrap;text-align:center;pointer-events:none}',
+'.ks-boundary-text.daerah{border-color:#b9d1dc;color:#37647a;font-size:12px}',
 '@media(max-width:520px){.ks-admin-selection{grid-template-columns:1fr}}'
 ].join('\n');
 let style=document.createElement('style');style.id='ksas-admin-boundary-style';style.textContent=css;document.head.appendChild(style);
@@ -29,7 +31,13 @@ const section=document.createElement('section');section.className='ks-boundary';
 '<p class="ks-boundary-status" id="ks-boundary-status">Memuatkan sempadan GeoJSON SUO…</p>';
 const stats=$('stats');if(stats)panel.insertBefore(section,stats);else panel.prepend(section);
 const configs={pbt:{color:'#d58a43',target:$('ks-b-pbt-select'),toggle:$('ks-b-pbt')},daerah:{color:'#437f9a',target:$('ks-b-daerah-select'),toggle:$('ks-b-daerah')}};
-const layers={};const data={};const state={pbt:'',daerah:''};
+const layers={};const labelLayers={};const data={};const state={pbt:'',daerah:''};
+// Dedicated panes remain above all KSAS fills and linework even after filter redraw.
+if(!map.getPane('ksas-boundaries'))map.createPane('ksas-boundaries');
+map.getPane('ksas-boundaries').style.zIndex='625';
+if(!map.getPane('ksas-admin-labels'))map.createPane('ksas-admin-labels');
+map.getPane('ksas-admin-labels').style.zIndex='630';
+map.getPane('ksas-admin-labels').style.pointerEvents='none';
 function isCollection(j){return j&&j.type==='FeatureCollection'&&Array.isArray(j.features)&&j.features.length>0}
 function labelFor(feature,type){
  const p=feature.properties||{};
@@ -45,10 +53,32 @@ function sync3D(){
  for(const type of ['pbt','daerah']){
   if(!data[type])continue;
   const sourceId='ks-admin-'+type,layerId=sourceId+'-outline';
+  const pointSource=sourceId+'-labels',labelId=sourceId+'-text';
   try{
    if(!mb.getSource(sourceId))mb.addSource(sourceId,{type:'geojson',data:data[type]});
-   if(!mb.getLayer(layerId))mb.addLayer({id:layerId,type:'line',source:sourceId,paint:{'line-color':configs[type].color,'line-width':type==='pbt'?2.3:1.6,'line-opacity':.88,'line-dasharray':type==='daerah'?[4,3]:[1,0.01]}});
-   mb.setLayoutProperty(layerId,'visibility',configs[type].toggle.checked?'visible':'none');
+   if(!mb.getLayer(layerId))mb.addLayer({id:layerId,type:'line',source:sourceId,
+    paint:{'line-color':configs[type].color,'line-width':type==='pbt'?2.5:2,'line-opacity':.95,
+           'line-dasharray':type==='daerah'?[4,3]:[1,0.01]}});
+   if(!mb.getSource(pointSource)){
+    let pointFeatures=data[type].features.map(f=>{
+     const b=L.geoJSON(f).getBounds(),center=b.getCenter();
+     return {type:'Feature',properties:{nama:labelFor(f,type)},
+       geometry:{type:'Point',coordinates:[center.lng,center.lat]}};
+    });
+    mb.addSource(pointSource,{type:'geojson',data:{type:'FeatureCollection',features:pointFeatures}});
+   }
+   if(!mb.getLayer(labelId))mb.addLayer({id:labelId,type:'symbol',source:pointSource,
+    layout:{'text-field':['get','nama'],'text-size':type==='pbt'?12:13,
+      'text-font':['Open Sans Bold','Arial Unicode MS Bold'],'text-allow-overlap':false,
+      'text-padding':3,'text-anchor':'center'},
+    paint:{'text-color':type==='pbt'?'#704523':'#24576f',
+      'text-halo-color':'#ffffff','text-halo-width':2.2,'text-halo-blur':.3}});
+   // Keep both boundary and label layers above KSAS polygons after style reload.
+   mb.moveLayer(layerId);
+   mb.moveLayer(labelId);
+   const visible=configs[type].toggle.checked?'visible':'none';
+   mb.setLayoutProperty(layerId,'visibility',visible);
+   mb.setLayoutProperty(labelId,'visibility',visible);
   }catch(e){console.warn('3D boundary sync',type,e)}
  }
 }
@@ -56,11 +86,20 @@ document.addEventListener('suo-ksas-mapbox-ready',sync3D);
 function redraw(){
  sync3D();
  for(const type of ['pbt','daerah']){
-  let layer=layers[type];if(!layer)continue;
-  if(configs[type].toggle.checked){if(!map.hasLayer(layer))layer.addTo(map);}
-  else if(map.hasLayer(layer))map.removeLayer(layer);
-  layer.eachLayer(l=>{const n=labelFor(l.feature,type),chosen=state[type]===n;
-   l.setStyle({color:configs[type].color,weight:chosen?3.8:(type==='pbt'?2:1.5),opacity:chosen?1:.78,fillOpacity:chosen?.06:0,dashArray:type==='daerah'?'6 5':null});
+  const layer=layers[type],labels=labelLayers[type];
+  if(!layer)continue;
+  const show=configs[type].toggle.checked;
+  if(show){if(!map.hasLayer(layer))layer.addTo(map);
+    if(labels&&!map.hasLayer(labels))labels.addTo(map);
+    layer.bringToFront();
+  }else{
+   if(map.hasLayer(layer))map.removeLayer(layer);
+   if(labels&&map.hasLayer(labels))map.removeLayer(labels);
+  }
+  layer.eachLayer(l=>{
+   const n=labelFor(l.feature,type),chosen=state[type]===n;
+   l.setStyle({color:configs[type].color,weight:chosen?4:(type==='pbt'?2.5:1.9),
+    opacity:chosen?1:.95,fill:false,dashArray:type==='daerah'?'6 5':null});
   });
  }
 }
@@ -71,8 +110,16 @@ function focus(type,name){
  const feature=data[type]&&data[type].features.find(f=>labelFor(f,type)===name);
  if(!feature)return;
  const bounds=L.geoJSON(feature).getBounds();
- if(bounds.isValid())map.fitBounds(bounds,{padding:[28,28],maxZoom:12});
- announce('Fokus '+(type==='pbt'?'PBT':'daerah')+': '+name+' · sempadan dari SUO 3D GeoPortal');
+ if(!bounds.isValid())return;
+ const mb=window.__suoKsasMapbox;
+ if($('map3d').classList.contains('active')&&mb){
+  mb.fitBounds([[bounds.getWest(),bounds.getSouth()],[bounds.getEast(),bounds.getNorth()]],
+   {padding:65,maxZoom:12,pitch:50});
+ }else{
+  map.fitBounds(bounds,{padding:[28,28],maxZoom:12});
+ }
+ // Persistent admin name in the panel, plus map labels for every enabled boundary.
+ announce('Dipilih: '+(type==='pbt'?'PBT':'Daerah')+' '+name+' · sempadan rasmi rujukan SUO');
 }
 for(const type of ['pbt','daerah']){
  configs[type].toggle.addEventListener('change',redraw);
@@ -84,7 +131,7 @@ async function load(type){
  const geo=await res.json();if(!isCollection(geo))throw Error('GeoJSON kosong / tidak sah');
  const expected=type==='pbt'?12:9;
  if(geo.features.length!==expected)throw Error('Bilangan sempadan '+geo.features.length+' tidak sama dengan '+expected);
- const layer=L.geoJSON(geo,{style:{color:configs[type].color,weight:type==='pbt'?2:1.5,opacity:.78,fill:false,dashArray:type==='daerah'?'6 5':null},
+ const layer=L.geoJSON(geo,{pane:'ksas-boundaries',style:{color:configs[type].color,weight:type==='pbt'?2.5:1.9,opacity:.95,fill:false,dashArray:type==='daerah'?'6 5':null},
   onEachFeature:(f,l)=>{
    const name=labelFor(f,type);
    l.bindTooltip(name,{sticky:true,direction:'top'});
@@ -95,6 +142,16 @@ async function load(type){
    });
   }});
  data[type]=geo;layers[type]=layer;
+ // A lightweight, permanent label layer above the polygons, independently toggled.
+ const markers=geo.features.map(f=>{
+   const b=L.geoJSON(f).getBounds();
+   if(!b.isValid())return null;
+   const name=labelFor(f,type);
+   const text=String(name).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+   return L.marker(b.getCenter(),{pane:'ksas-admin-labels',interactive:false,
+     icon:L.divIcon({className:'',html:'<div class="ks-boundary-text '+type+'">'+text+'</div>',iconSize:[0,0],iconAnchor:[0,0]})});
+ }).filter(Boolean);
+ labelLayers[type]=L.layerGroup(markers);
  const labels=Array.from(new Set(geo.features.map(f=>labelFor(f,type)))).sort((a,b)=>a.localeCompare(b,'ms'));
  for(const n of labels){const o=document.createElement('option');o.value=n;o.textContent=n;configs[type].target.appendChild(o)}
  sync3D();
