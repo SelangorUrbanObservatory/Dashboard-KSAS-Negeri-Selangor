@@ -249,6 +249,8 @@ function ingest(data,meta){
 if(data.type==='Feature')data={type:'FeatureCollection',features:[data]};
 if(data.type!=='FeatureCollection'||!Array.isArray(data.features))throw Error('Format bukan GeoJSON FeatureCollection');
 original=data.features.filter(function(f){return f&&f.geometry&&['Polygon','MultiPolygon'].includes(f.geometry.type)});
+window.__suoKsasOriginal=original;
+document.dispatchEvent(new CustomEvent('suo-ksas-original-ready',{detail:{count:original.length}}));
 metadata=meta||null;
 if(metadata&&metadata.source_101){$('source-note').textContent='Sumber: workspace RSN Selangor 2035 (Pengubahan) · 101 objek vektor asli';$('status').title='Dataset utama RSN 2035';}else{$('source-note').textContent='DATA ARKIB: dataset 4,886 poligon. Fail baharu 101 poligon belum dimuat naik ke repo.';}
 var categories=Array.from(new Set(original.map(cat))).sort();
