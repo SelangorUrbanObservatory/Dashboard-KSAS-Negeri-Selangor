@@ -82,6 +82,20 @@ function fitMapbox(){
  var b=layer.getBounds();
  if(b.isValid())map3d.fitBounds([[b.getWest(),b.getSouth()],[b.getEast(),b.getNorth()]],{padding:32,maxZoom:11,pitch:55});
 }
+function ksasDetails(p){
+ p=p||{};
+ var heading='KSAS '+(p.tahap?'Tahap '+esc(p.tahap):'—');
+ var rows=[['ID KSAS',p.ksas_id],['Kategori kesensitifan',p.kategori_ksas],['Tahap',p.tahap],['Keluasan asal (ha)',p.luas_h],['Keluasan geometri (ha)',p.luas_geometri_ha],['Jenis KSAS',p.jenis_ksas||'Belum tersedia dalam dataset'],['Nama kawasan',p.nama||'Belum tersedia dalam dataset']];
+ var body=rows.map(function(row){return '<div class="info-row"><b>'+esc(row[0])+'</b><span>'+esc(row[1])+'</span></div>'}).join('');
+ var note='<p style="font-size:11px;color:#87612d;line-height:1.55">Jenis KSAS (contoh hutan simpanan, cerun atau tadahan air) tidak boleh dikenal pasti daripada tahap semata-mata. Memerlukan atribut jenis dan semakan sumber rasmi.</p>';
+ return {heading:heading,panel:'<h3 style="margin:0 0 10px;font-size:13px">'+heading+'</h3>'+body+note,popup:'<div style="font:12px/1.5 system-ui;min-width:210px"><b>'+heading+'</b><div>ID: '+esc(p.ksas_id)+'</div><div>'+esc(p.kategori_ksas)+'</div><div>Jenis KSAS: <b>'+esc(p.jenis_ksas||'Belum tersedia')+'</b></div><div>Luas geometri: '+esc(p.luas_geometri_ha)+' ha</div><small style="color:#856c39">Klik panel Maklumat Kawasan untuk butiran.</small></div>'};
+}
+function selectKSAS(p){
+ var v=ksasDetails(p);
+ $('info').innerHTML=v.panel;
+ $('mapstatus').textContent=v.heading+' · '+(p.ksas_id||'ID tidak tersedia');
+ return v;
+}
 function setupMapbox(){
  if(!window.mapboxgl||!mapboxgl.supported()){alert('Mapbox 3D memerlukan pelayar yang menyokong WebGL.');return false}
  
@@ -101,7 +115,7 @@ mapboxgl.accessToken = token;
  });
  map3d.on('load',fitMapbox);
  map3d.on('error',function(e){console.warn('Mapbox:',e.error||e);if(!ready3d)showLoading('Mapbox gagal memuatkan gaya: semak token dan akses domain.')});
- map3d.on('click','ksas-3d-fill',function(e){var p=e.features&&e.features[0]&&e.features[0].properties;if(!p)return;$('info').innerHTML=Object.entries(p).map(function(e){return '<div class="info-row"><b>'+esc(e[0])+'</b><span>'+esc(e[1])+'</span></div>'}).join('')});
+ map3d.on('click','ksas-3d-fill',function(e){var p=e.features&&e.features[0]&&e.features[0].properties;if(!p)return;var v=selectKSAS(p);new mapboxgl.Popup({maxWidth:'300px'}).setLngLat(e.lngLat).setHTML(v.popup).addTo(map3d)});
  return true
 }
 function toggleMapMode(){
@@ -146,10 +160,7 @@ return true
 if(layer)map.removeLayer(layer);
 layer=L.geoJSON({type:'FeatureCollection',features:filtered},{
 style:function(f){return {color:palette[level(f)]||'#70859d',fillColor:palette[level(f)]||'#70859d',weight:1,opacity:.85,fillOpacity:.40}},
-onEachFeature:function(f,l){l.on('click',function(){
-$('info').innerHTML=Object.entries(f.properties||{}).map(function(e){return '<div class="info-row"><b>'+esc(e[0])+'</b><span>'+esc(e[1])+'</span></div>'}).join('')||'<div class="info-empty">Tiada atribut.</div>';
-$('mapstatus').textContent='Fitur dipilih · '+esc(cat(f))
-})}
+onEachFeature:function(f,l){l.on('click',function(e){var v=selectKSAS(f.properties||{});L.popup({maxWidth:310}).setLatLng(e.latlng).setContent(v.popup).openOn(map)})}
 }).addTo(map);
 if(mode3d&&ready3d)put3D();
 var vals={'1':0,'2':0},nums={'1':0,'2':0};
