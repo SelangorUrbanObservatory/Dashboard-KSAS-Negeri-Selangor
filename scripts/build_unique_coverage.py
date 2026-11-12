@@ -18,8 +18,7 @@ from datetime import datetime, timezone
 
 import geopandas as gpd
 from shapely.ops import unary_union
-from shapely.validation import explain_validity
-from shapely import make_valid
+from shapely import make_valid, intersection, union_all, set_precision
 from shapely.geometry import Polygon, MultiPolygon, GeometryCollection
 
 PBT = ['MBSA','MBPJ','MBSJ','MBDK','MPS','MPAJ','MPKJ','MPSp','MPKL','MPKS','MPHS','MDSB']
@@ -87,11 +86,14 @@ def normalize_boundary(frame,field,expected,alias=None):
     if field not in frame:
         raise ValueError(f'Expected boundary field {field} missing, found {list(frame.columns)}')
     names=frame[field].astype(str).str.strip().replace(alias or {})
+    normalized={x.casefold():x for x in expected}
+    names=names.map(lambda x: normalized.get(x.casefold(),x))
     frame=frame.assign(_region_name=names)
     observed=set(names)
     if set(expected)!=observed:
         raise ValueError(f'Boundary names mismatch: missing={sorted(set(expected)-observed)}, extra={sorted(observed-set(expected))}')
-    return repair(frame,'administrative boundaries').dissolve(by='_region_name')
+    frame=repair(frame,'administrative boundaries')
+    return frame.dissolve(by='_region_name')
 
 def calculate(ksas,boundaries,expected):
     output=[]
@@ -104,17 +106,17 @@ def calculate(ksas,boundaries,expected):
             geom=feature.geometry
             if geom.is_empty or not geom.intersects(boundary):
                 continue
-            clipped=polygonal(geom.intersection(boundary))
+            clipped=polygonal(intersection(geom,boundary,grid_size=0.01))
             if clipped.is_empty or clipped.area<=0:
                 continue
             clips.append(clipped)
             stage=str(feature.get('tahap',''))
             if stage in by_level:by_level[stage].append(clipped)
-        unique_ha=unary_union(clips).area/1e4 if clips else 0.0
+        unique_ha=union_all(clips,grid_size=0.01).area/1e4 if clips else 0.0
         boundary_ha=boundary.area/1e4
         if unique_ha>boundary_ha+max(0.02,boundary_ha*0.001):
             raise ValueError(f'Invalid union coverage for {name}: {unique_ha} > {boundary_ha}')
-        level_ha={k:round(unary_union(items).area/1e4,4) if items else 0.0 for k,items in by_level.items()}
+        level_ha={k:round(union_all(items,grid_size=0.01).area/1e4,4) if items else 0.0 for k,items in by_level.items()}
         output.append({
          'name':name,'unique_ha':round(unique_ha,4),
          'boundary_ha':round(boundary_ha,4),'coverage_pct':round(unique_ha/boundary_ha*100,6),
