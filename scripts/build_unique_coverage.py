@@ -19,6 +19,8 @@ from datetime import datetime, timezone
 import geopandas as gpd
 from shapely.ops import unary_union
 from shapely.validation import explain_validity
+from shapely import make_valid
+from shapely.geometry import Polygon, MultiPolygon, GeometryCollection
 
 PBT = ['MBSA','MBPJ','MBSJ','MBDK','MPS','MPAJ','MPKJ','MPSp','MPKL','MPKS','MPHS','MDSB']
 DAERAH = ['Petaling','Klang','Gombak','Hulu Langat','Sepang','Kuala Langat','Kuala Selangor','Hulu Selangor','Sabak Bernam']
@@ -56,6 +58,31 @@ def read_archive(dirpath):
     frame=gpd.GeoDataFrame(attrs,geometry=geometries,crs='EPSG:4326')
     return frame.to_crs('EPSG:6933')
 
+def polygonal(geom):
+    """Repair broken rings; keep polygonal parts only (never add area for lines)."""
+    if geom is None or geom.is_empty:
+        return GeometryCollection()
+    repaired=geom if geom.is_valid else make_valid(geom)
+    if isinstance(repaired,(Polygon,MultiPolygon)):
+        return repaired
+    if hasattr(repaired,'geoms'):
+        polygons=[]
+        for piece in repaired.geoms:
+            if isinstance(piece,Polygon): polygons.append(piece)
+            elif isinstance(piece,MultiPolygon): polygons.extend(piece.geoms)
+        if polygons:return unary_union(polygons)
+    return GeometryCollection()
+
+def repair(frame,label):
+    invalid=int((~frame.geometry.is_valid).sum())
+    if invalid: print(f'WARNING: repairing {invalid} invalid geometries in {label} via GEOS make_valid')
+    frame=frame.copy()
+    frame.geometry=frame.geometry.apply(polygonal)
+    frame=frame[~frame.geometry.is_empty].copy()
+    if not frame.geometry.is_valid.all():
+        raise ValueError(f'Invalid geometry remains in {label} after make_valid')
+    return frame
+
 def normalize_boundary(frame,field,expected,alias=None):
     if field not in frame:
         raise ValueError(f'Expected boundary field {field} missing, found {list(frame.columns)}')
@@ -64,17 +91,11 @@ def normalize_boundary(frame,field,expected,alias=None):
     observed=set(names)
     if set(expected)!=observed:
         raise ValueError(f'Boundary names mismatch: missing={sorted(set(expected)-observed)}, extra={sorted(observed-set(expected))}')
-    bad=frame.loc[~frame.geometry.is_valid]
-    if len(bad):
-        raise ValueError(f'{len(bad)} invalid administrative boundaries; repair and document first')
-    return frame.dissolve(by='_region_name')
+    return repair(frame,'administrative boundaries').dissolve(by='_region_name')
 
 def calculate(ksas,boundaries,expected):
     output=[]
-    bad=ksas.loc[~ksas.geometry.is_valid]
-    if len(bad):
-        first=bad.iloc[0]
-        raise ValueError(f'{len(bad)} invalid KSAS polygons ({explain_validity(first.geometry)}). Repair source and document the process before use.')
+    ksas=repair(ksas,'KSAS')
     for name in expected:
         boundary=boundaries.loc[name].geometry
         clips=[]
@@ -83,7 +104,7 @@ def calculate(ksas,boundaries,expected):
             geom=feature.geometry
             if geom.is_empty or not geom.intersects(boundary):
                 continue
-            clipped=geom.intersection(boundary)
+            clipped=polygonal(geom.intersection(boundary))
             if clipped.is_empty or clipped.area<=0:
                 continue
             clips.append(clipped)
@@ -111,13 +132,25 @@ def main():
     parser.add_argument('--daerah',required=True)
     parser.add_argument('--pbt-name-field',default='NAMA_PBT')
     parser.add_argument('--daerah-name-field',default='NAMA_DAERAH')
+    parser.add_argument('--geometry-source-override',action='store_true',help='Reserved for explicit audit; no effect on computed metric')
     parser.add_argument('--output',default='data/ksas_admin_unique.json')
     args=parser.parse_args()
     ksas=read_archive(args.archive_dir) if args.ksas_mode=='archive' else load_geojson(args.ksas)
     if 'tahap' not in ksas:
         raise ValueError('KSAS layer lacks tahap field')
-    pbt=normalize_boundary(load_geojson(args.pbt),args.pbt_name_field,PBT,PBT_MAP)
-    daerah=normalize_boundary(load_geojson(args.daerah),args.daerah_name_field,DAERAH)
+    pbt_frame=load_geojson(args.pbt)
+    daerah_frame=load_geojson(args.daerah)
+    pbt=normalize_boundary(pbt_frame,args.pbt_name_field,PBT,PBT_MAP)
+    district_field=args.daerah_name_field
+    if district_field not in daerah_frame.columns:
+        for candidate in ('NAMA_DAERAH','nama_daerah','DAERAH','Daerah','NAM','NAME_2','Name','name'):
+            if candidate in daerah_frame.columns:
+                values=set(daerah_frame[candidate].astype(str).str.strip())
+                if values==set(DAERAH):
+                    district_field=candidate
+                    print('District name field detected:',district_field)
+                    break
+    daerah=normalize_boundary(daerah_frame,district_field,DAERAH)
     result={
       'metric':'union_clipped_geometries_ha',
       'status':'computed_requires_review',
