@@ -97,41 +97,10 @@ function start(){
    display(cache[type].rows,cache[type].metric);return;
   }
  }
- if(input.features.length>300){
-  setPending('Dataset aktif mempunyai '+input.features.length+' fitur. Pengiraan union menyeluruh dalam pelayar dinyahaktifkan untuk mengelakkan peta tersekat. Gunakan hasil analisis pra-proses GIS yang disahkan.');
-  return;
- }
- if(running[type]){setPending('Sedang mengira keluasan unik '+(type==='pbt'?'12 PBT':'9 daerah')+'…');return}
- if(typeof Worker==='undefined'){setPending('Pelayar tidak menyokong pekerja pengiraan GIS. Perlu gunakan analisis praproses.');return}
- if(worker){worker.terminate();worker=null;running.pbt=false;running.daerah=false}
- try{
-  worker=new Worker('./js/ksas-unique-worker.js?v=2-unique-coverage');
- }catch(e){setPending('Pekerja spatial tidak dapat dimulakan: '+e.message);return}
- const localWorker=worker;
- running[type]=true;
- setPending('Mengira union geometri untuk '+(type==='pbt'?'12 PBT':'9 daerah')+'. Proses ini boleh mengambil masa mengikut kerumitan poligon…');
- localWorker.onmessage=e=>{
-  if(worker!==localWorker)return;
-  const d=e.data||{};
-  if(d.kind==='progress'&&d.type===type){if(state.type===type)setPending('Mengira keluasan unik '+d.completed+' / '+d.total+' kawasan…');return}
-  if(d.kind==='error'){
-   running[type]=false;localWorker.terminate();worker=null;
-   if(state.type===type)setPending('Pengiraan union tidak lengkap: '+d.message+'. Angka ranking tidak dipaparkan supaya tiada hasil separa yang disalah tafsir.');
-   return;
-  }
-  if(d.kind==='complete'&&d.type===type){
-   running[type]=false;localWorker.terminate();worker=null;
-   const names=typesFor(type);
-   if(!Array.isArray(d.rows)||d.rows.length!==names.length||d.metric!=='union_clipped_geometries_ha'||d.rows.some(r=>!names.includes(r.name)||!Number.isFinite(r.unique_ha)||r.coverage_pct<0||r.coverage_pct>101)){
-    if(state.type===type)setPending('Pengesahan keputusan ranking gagal.');return;
-   }
-   const rows=d.rows.slice().sort((a,b)=>b.unique_ha-a.unique_ha);
-   cache[type]={rows,metric:d.metric};
-   if(state.type===type)display(rows,d.metric);
-  }
- };
- localWorker.onerror=e=>{running[type]=false;localWorker.terminate();worker=null;if(state.type===type)setPending('Pengiraan geometri gagal. Tiada statistik separa diterbitkan.');};
- localWorker.postMessage({kind:'rank',type,features:input.features,areas:input.areas});
+ // Browser polygon union is deliberately disabled: Turf/JSTS SweepLine can fail on
+ // complex KSAS rings. GEOS/Shapely output must be complete before display.
+ setPending('Analisis keluasan unik belum tersedia untuk dataset aktif. Pengiraan GIS GEOS/Shapely sedang disediakan melalui fail analitik repo. Tiada angka dianggarkan atau dipaparkan secara separa.');
+ return;
 }
 function typesFor(type){return type==='pbt'?PBT:DIST}
 function onAreaChange(){
