@@ -1,0 +1,270 @@
+{
+  "metric": "union_clipped_geometries_ha",
+  "status": "computed_requires_review",
+  "source_count": 101,
+  "source_dataset": "primary_101",
+  "source_ksas": "data/KSAS_RSN2035_101_Dashboard.geojson",
+  "source_boundary": {
+    "pbt": "build/pbt.geojson",
+    "daerah": "build/daerah.geojson"
+  },
+  "crs_calculation": "EPSG:6933",
+  "generated_at": "2026-11-12T01:04:51.499111+00:00",
+  "method": "Intersect every feature with administrative polygon then unary_union; no feature-area summing",
+  "pbt": [
+    {
+      "name": "MBSA",
+      "unique_ha": 19707.6777,
+      "boundary_ha": 30119.3699,
+      "coverage_pct": 65.431906,
+      "by_level_unique_ha": {
+        "1": 1181.0544,
+        "2": 11240.7831,
+        "3": 7285.8407
+      },
+      "intersected_count": 14
+    },
+    {
+      "name": "MBPJ",
+      "unique_ha": 2904.5892,
+      "boundary_ha": 9780.0701,
+      "coverage_pct": 29.699064,
+      "by_level_unique_ha": {
+        "1": 0.0,
+        "2": 1087.6299,
+        "3": 1816.9593
+      },
+      "intersected_count": 5
+    },
+    {
+      "name": "MBSJ",
+      "unique_ha": 7851.0349,
+      "boundary_ha": 16344.7993,
+      "coverage_pct": 48.033841,
+      "by_level_unique_ha": {
+        "1": 109.8649,
+        "2": 6934.5552,
+        "3": 806.6148
+      },
+      "intersected_count": 13
+    },
+    {
+      "name": "MBDK",
+      "unique_ha": 30548.614,
+      "boundary_ha": 55507.7934,
+      "coverage_pct": 55.03482,
+      "by_level_unique_ha": {
+        "1": 15466.251,
+        "2": 8597.3106,
+        "3": 6485.0526
+      },
+      "intersected_count": 13
+    },
+    {
+      "name": "MPS",
+      "unique_ha": 50503.4693,
+      "boundary_ha": 52325.8244,
+      "coverage_pct": 96.517293,
+      "by_level_unique_ha": {
+        "1": 16480.5178,
+        "2": 14196.4432,
+        "3": 19826.5084
+      },
+      "intersected_count": 23
+    },
+    {
+      "name": "MPAJ",
+      "unique_ha": 11025.0005,
+      "boundary_ha": 13914.3287,
+      "coverage_pct": 79.234872,
+      "by_level_unique_ha": {
+        "1": 7475.6299,
+        "2": 2286.5448,
+        "3": 1262.8258
+      },
+      "intersected_count": 17
+    },
+    {
+      "name": "MPKJ",
+      "unique_ha": 79440.3855,
+      "boundary_ha": 80540.459,
+      "coverage_pct": 98.634135,
+      "by_level_unique_ha": {
+        "1": 25679.1505,
+        "2": 18516.3154,
+        "3": 35244.9208
+      },
+      "intersected_count": 16
+    },
+    {
+      "name": "MPSp",
+      "unique_ha": 43002.5098,
+      "boundary_ha": 55100.3645,
+      "coverage_pct": 78.043966,
+      "by_level_unique_ha": {
+        "1": 4900.536,
+        "2": 26919.6953,
+        "3": 11182.2785
+      },
+      "intersected_count": 20
+    },
+    {
+      "name": "MPKL",
+      "unique_ha": 60115.6913,
+      "boundary_ha": 85880.8119,
+      "coverage_pct": 69.998979,
+      "by_level_unique_ha": {
+        "1": 11148.7214,
+        "2": 30670.911,
+        "3": 18296.0589
+      },
+      "intersected_count": 16
+    },
+    {
+      "name": "MPKS",
+      "unique_ha": 88689.3015,
+      "boundary_ha": 120198.9827,
+      "coverage_pct": 73.785401,
+      "by_level_unique_ha": {
+        "1": 43597.8816,
+        "2": 24646.1364,
+        "3": 20445.2844
+      },
+      "intersected_count": 29
+    },
+    {
+      "name": "MPHS",
+      "unique_ha": 175207.5433,
+      "boundary_ha": 175590.5888,
+      "coverage_pct": 99.781853,
+      "by_level_unique_ha": {
+        "1": 62279.5611,
+        "2": 60493.2512,
+        "3": 52434.7311
+      },
+      "intersected_count": 26
+    },
+    {
+      "name": "MDSB",
+      "unique_ha": 68985.2368,
+      "boundary_ha": 99810.4453,
+      "coverage_pct": 69.11625,
+      "by_level_unique_ha": {
+        "1": 49719.4213,
+        "2": 11247.7106,
+        "3": 8018.1392
+      },
+      "intersected_count": 14
+    }
+  ],
+  "daerah": [
+    {
+      "name": "Petaling",
+      "unique_ha": 26754.6635,
+      "boundary_ha": 49837.2956,
+      "coverage_pct": 53.684019,
+      "by_level_unique_ha": {
+        "1": 1266.0794,
+        "2": 16492.7961,
+        "3": 8995.7884
+      },
+      "intersected_count": 21
+    },
+    {
+      "name": "Klang",
+      "unique_ha": 34185.1381,
+      "boundary_ha": 81157.8362,
+      "coverage_pct": 42.121796,
+      "by_level_unique_ha": {
+        "1": 15274.2656,
+        "2": 11456.3169,
+        "3": 7454.5559
+      },
+      "intersected_count": 13
+    },
+    {
+      "name": "Gombak",
+      "unique_ha": 59750.2598,
+      "boundary_ha": 62643.7207,
+      "coverage_pct": 95.381084,
+      "by_level_unique_ha": {
+        "1": 23760.0995,
+        "2": 15523.2185,
+        "3": 20466.9419
+      },
+      "intersected_count": 27
+    },
+    {
+      "name": "Hulu Langat",
+      "unique_ha": 81307.4427,
+      "boundary_ha": 84248.1653,
+      "coverage_pct": 96.509452,
+      "by_level_unique_ha": {
+        "1": 26019.8634,
+        "2": 19457.9138,
+        "3": 35829.6667
+      },
+      "intersected_count": 21
+    },
+    {
+      "name": "Sepang",
+      "unique_ha": 43094.5012,
+      "boundary_ha": 56338.6842,
+      "coverage_pct": 76.491849,
+      "by_level_unique_ha": {
+        "1": 4886.7384,
+        "2": 26966.9368,
+        "3": 11240.826
+      },
+      "intersected_count": 19
+    },
+    {
+      "name": "Kuala Langat",
+      "unique_ha": 59984.4543,
+      "boundary_ha": 89979.9262,
+      "coverage_pct": 66.664263,
+      "by_level_unique_ha": {
+        "1": 11123.5824,
+        "2": 30596.576,
+        "3": 18264.2958
+      },
+      "intersected_count": 17
+    },
+    {
+      "name": "Kuala Selangor",
+      "unique_ha": 88135.8111,
+      "boundary_ha": 126479.4347,
+      "coverage_pct": 69.683907,
+      "by_level_unique_ha": {
+        "1": 43062.8571,
+        "2": 24632.859,
+        "3": 20440.0959
+      },
+      "intersected_count": 32
+    },
+    {
+      "name": "Hulu Selangor",
+      "unique_ha": 174943.7463,
+      "boundary_ha": 175207.1253,
+      "coverage_pct": 99.849676,
+      "by_level_unique_ha": {
+        "1": 61985.3249,
+        "2": 60492.5363,
+        "3": 52465.8851
+      },
+      "intersected_count": 28
+    },
+    {
+      "name": "Sabak Bernam",
+      "unique_ha": 70479.3482,
+      "boundary_ha": 107803.7967,
+      "coverage_pct": 65.377427,
+      "by_level_unique_ha": {
+        "1": 50999.8915,
+        "2": 11374.3409,
+        "3": 8105.15
+      },
+      "intersected_count": 16
+    }
+  ]
+}
