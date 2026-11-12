@@ -179,6 +179,13 @@ function focus(type,name){
  }else map.fitBounds(bounds,{padding:[28,28],maxZoom:12});
  announce('Kawasan dipilih: '+(type==='pbt'?'PBT':'Daerah')+' '+name+' · sempadan diserlahkan');
 }
+// The top bar is the primary selector; highlight immediately even if boundary data loads later.
+document.addEventListener('suo-ksas-admin-selection',function(e){
+ const d=e.detail||{};
+ if(d.type!=='pbt'&&d.type!=='daerah')return;
+ if(activeSelection.type===d.type&&activeSelection.name===(d.name||''))return;
+ setSelection(d.type,d.name||'',false);
+});
 for(const type of ['pbt','daerah']){
  configs[type].toggle.addEventListener('change',redraw);
  configs[type].target.addEventListener('change',e=>focus(type,e.target.value));
