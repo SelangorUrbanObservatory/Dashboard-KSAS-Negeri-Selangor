@@ -74,6 +74,8 @@ function start(){
  const type=state.type;
  if(!precomputedChecked){setPending('Semak dataset analisis unik praproses…');return}
  if(cache[type]){display(cache[type].rows,cache[type].metric);return}
+ // Clear a previous area's unique indicator until this selection has a complete result.
+ document.dispatchEvent(new CustomEvent('suo-ksas-unique-selected',{detail:{type,name:''}}));
  const input=validatedInput(type);
  if(!input){setPending('Menunggu geometri KSAS dan sempadan '+(type==='pbt'?'PBT':'Daerah')+' dimuatkan…');return}
  // A precomputed complete GIS union is preferred for large datasets.
