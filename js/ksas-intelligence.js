@@ -9,6 +9,9 @@ const styles=[
 styles.push([
 '.ki-section{margin:20px 0!important}',
 '.ki-section>.ki-heading{font-size:clamp(20px,2vw,27px);margin:5px 0}',
+'.ki-summary-grid{display:grid!important;grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);gap:14px;align-items:stretch;margin-top:14px;width:100%}',
+'.ki-summary-grid>.ki-ranking-card,.ki-summary-grid>.ki-conservation-card{display:block!important;min-width:0}',
+'.ki-ranking-card #ki-ranking{margin-top:9px;max-width:none}',
 '.ki-summary-grid{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(0,1.1fr);gap:14px;align-items:stretch;margin-top:14px}',
 '.ki-summary-grid>.ki-card{min-width:0;margin:0!important;padding:17px 19px}',
 '.ki-ranking-card h3 small{font-size:11px;font-weight:600;color:#87958d}',
@@ -24,7 +27,7 @@ styles.push([
 ].join('')); 
 const style=document.createElement('style');style.textContent=styles;style.id='ki-styles';document.head.appendChild(style);
 const root=document.createElement('section');root.className='ki-section';root.id='ksas-intelligence';
-root.innerHTML='<span class="ki-kicker">SUO · ENVIRONMENTAL INTELLIGENCE</span><h2 class="ki-heading">Analitik Spatial dan Indikator KSAS</h2><p class="ki-muted">Analisis pentadbiran, statistik pemuliharaan dan penerangan dasar RSN Selangor 2035 (Pengubahan).</p>'+
+root.innerHTML='<span class="ki-kicker">SUO · ENVIRONMENTAL INTELLIGENCE</span><h2 class="ki-heading">Ringkasan Analitik KSAS</h2><p class="ki-muted">Analisis pentadbiran, statistik pemuliharaan dan penerangan dasar RSN Selangor 2035 (Pengubahan).</p>'+
 '<div class="ki-summary-grid"><article class="ki-card ki-ranking-card"><h3>Ranking KSAS <small>PBT / Daerah</small></h3><div id="ki-ranking" class="ki-placeholder" aria-live="polite"></div></article>'+
 '<article class="ki-card ki-conservation-card"><h3>Conservation Indicators</h3><p class="ki-muted">Ringkasan data mengikut kawasan terpilih. Luas fitur boleh bertindih.</p><div class="ki-indicators">'+
 '<div class="ki-metric"><small>Bilangan objek GIS</small><strong id="ki-count">—</strong><small>Dataset aktif</small></div>'+
@@ -33,7 +36,11 @@ root.innerHTML='<span class="ki-kicker">SUO · ENVIRONMENTAL INTELLIGENCE</span>
 '<div class="ki-metric"><small>Keluasan unik KSAS kawasan</small><strong id="ki-unique">—</strong><small id="ki-unique-note">Pilih PBT/daerah · kiraan union/dissolve</small></div></div><div id="ki-source" class="ki-small">Menunggu dataset KSAS dimuatkan.</div></article></div>'+
 '<article class="ki-card" style="margin-top:17px"><h3>RSN Policy Intelligence</h3><p class="ki-muted">Klik tema untuk memahami pertimbangan Dasar MP16 dan kriteria KSAS. Maklumat ini bukan status pewartaan atau keputusan perancangan automatik.</p><div class="ki-policy-grid" id="ki-themes"></div><div class="ki-policy-content" id="ki-policy-content"></div><p class="ki-small">Sumber: RSN Selangor 2035 (Pengubahan), Dasar MP16, Rajah 5.3.17 dan Jadual 5.3.4. Perlu dirujuk bersama rancangan pemajuan dan agensi teknikal.</p></article>';
 const rsn=document.getElementById('rsn-ksas'),workspace=document.querySelector('.workspace'),footer=document.querySelector('.footer');
-if(rsn)rsn.parentNode.insertBefore(root,rsn);else if(footer)footer.parentNode.insertBefore(root,footer);else if(workspace)workspace.after(root);
+// The compact metrics live directly below the map workspace, rather than being
+// buried after lower-page RSN/PPPKSAS sections.
+if(workspace)workspace.insertAdjacentElement('afterend',root);
+else if(footer)footer.parentNode.insertBefore(root,footer);
+else if(rsn)rsn.parentNode.insertBefore(root,rsn);
 const $=id=>document.getElementById(id);
 let mode='pbt',admin=null;const currentSelection={type:'pbt',name:''};
 const places=()=>mode==='pbt'?PBT:DIST;
