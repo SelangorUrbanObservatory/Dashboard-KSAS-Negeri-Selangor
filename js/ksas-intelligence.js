@@ -9,12 +9,12 @@ const styles=[
 const style=document.createElement('style');style.textContent=styles;style.id='ki-styles';document.head.appendChild(style);
 const root=document.createElement('section');root.className='ki-section';root.id='ksas-intelligence';
 root.innerHTML='<span class="ki-kicker">SUO · ENVIRONMENTAL INTELLIGENCE</span><h2 class="ki-heading">Analitik Spatial dan Indikator KSAS</h2><p class="ki-muted">Analisis pentadbiran, statistik pemuliharaan dan penerangan dasar RSN Selangor 2035 (Pengubahan).</p>'+
-'<div class="ki-grid ki-ranking-only"><article class="ki-card"><h3>Ranking KSAS PBT / Daerah</h3><p class="ki-muted">Ranking mengikut pilihan PBT atau Daerah di bar penapis atas peta. Keputusan memerlukan keluasan intersection yang disahkan untuk semua kawasan.</p><div id="ki-ranking" class="ki-placeholder" aria-live="polite"></div></article></div>'+ 
+'<div class="ki-grid ki-ranking-only"><article class="ki-card"><h3>Ranking KSAS PBT / Daerah</h3><p class="ki-muted">Ranking mengikut pilihan PBT atau Daerah di bar penapis atas peta. Keluasan unik selepas union/dissolve dan potongan sempadan; klik bar untuk memilih kawasan pada peta.</p><div id="ki-ranking" class="ki-placeholder" aria-live="polite"></div></article></div>'+ 
 '<article class="ki-card" style="margin-top:17px"><h3>Conservation Indicators</h3><p class="ki-muted">Jumlah luas fitur boleh bertindih. Liputan unik negeri memerlukan proses union/dissolve yang berasingan.</p><div class="ki-indicators">'+
 '<div class="ki-metric"><small>Bilangan objek GIS</small><strong id="ki-count">—</strong><small>Dataset aktif</small></div>'+
 '<div class="ki-metric"><small>Jumlah luas fitur</small><strong id="ki-sum">—</strong><small>Hektar · mungkin bertindih</small></div>'+
 '<div class="ki-metric"><small>Tahap tertinggi mengikut bilangan objek</small><strong id="ki-dominant">—</strong><small>Bukan luas unik</small></div>'+
-'<div class="ki-metric"><small>Liputan unik Selangor</small><strong>Belum tersedia</strong><small>Perlu union/dissolve · keluasan negeri 833,720.73 ha (JUPEM 2024)</small></div></div><div id="ki-source" class="ki-small">Menunggu dataset KSAS dimuatkan.</div></article>'+
+'<div class="ki-metric"><small>Keluasan unik KSAS kawasan</small><strong id="ki-unique">—</strong><small id="ki-unique-note">Pilih PBT/daerah · kiraan union/dissolve</small></div></div><div id="ki-source" class="ki-small">Menunggu dataset KSAS dimuatkan.</div></article>'+
 '<article class="ki-card" style="margin-top:17px"><h3>RSN Policy Intelligence</h3><p class="ki-muted">Klik tema untuk memahami pertimbangan Dasar MP16 dan kriteria KSAS. Maklumat ini bukan status pewartaan atau keputusan perancangan automatik.</p><div class="ki-policy-grid" id="ki-themes"></div><div class="ki-policy-content" id="ki-policy-content"></div><p class="ki-small">Sumber: RSN Selangor 2035 (Pengubahan), Dasar MP16, Rajah 5.3.17 dan Jadual 5.3.4. Perlu dirujuk bersama rancangan pemajuan dan agensi teknikal.</p></article>';
 const rsn=document.getElementById('rsn-ksas'),workspace=document.querySelector('.workspace'),footer=document.querySelector('.footer');
 if(rsn)rsn.parentNode.insertBefore(root,rsn);else if(footer)footer.parentNode.insertBefore(root,footer);else if(workspace)workspace.after(root);
@@ -22,41 +22,9 @@ const $=id=>document.getElementById(id);
 let mode='pbt',admin=null;const currentSelection={type:'pbt',name:''};
 const places=()=>mode==='pbt'?PBT:DIST;
 const rows=()=>admin&&admin[mode];
-function renderRanking(){
- let data=rows();
- if(!data){$('ki-ranking').textContent='Ranking menunggu hasil spatial intersection rasmi. Tiada nilai atau turutan direka berdasarkan anggaran.';return}
- let sorted=data.slice().sort((a,b)=>b.total_ha-a.total_ha),max=Math.max(1,...sorted.map(x=>x.total_ha));
- $('ki-ranking').innerHTML=sorted.map((r,i)=>'<div class="ki-rank"'+(r.name===currentSelection.name?' style="background:#edf8f1;border-radius:6px;padding:6px"':'')+'><b>'+(i+1)+'. '+r.name+'</b><div class="ki-track"><div class="ki-fill" style="width:'+(r.total_ha/max*100).toFixed(2)+'%"></div></div><span class="ki-rank-val">'+format(r.total_ha)+' ha</span></div>').join('')+'<p class="ki-small">Disusun mengikut jumlah keluasan hasil potongan fitur, bukan keluasan unik (union).</p>';
-}
-renderRanking();
-function validate(arr,names){
- if(!Array.isArray(arr)||arr.length!==names.length)return null;
- let found=new Set();
- for(let x of arr){
-  if(!x||!names.includes(x.name)||found.has(x.name)||!x.by_level_ha)return null;
-  found.add(x.name);
-  if(![x.total_ha,x.boundary_ha,x.by_level_ha['1'],x.by_level_ha['2'],x.by_level_ha['3']].every(v=>typeof v==='number'&&Number.isFinite(v)&&v>=0))return null;
- }
- return arr;
-}
-fetch('./data/ksas_admin_intersection.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(data=>{
- if(!data||data.status!=='verified'||data.metric!=='intersected_feature_area_ha'||!data.source_boundary||!data.source_ksas||!data.generated_at)return;
- let pbt=validate(data.pbt,PBT),daerah=validate(data.daerah,DIST);
- if(pbt&&daerah){admin={pbt,daerah};renderRanking()}
-}).catch(e=>console.warn('KSAS spatial analytics pending official boundary data',e));
+// The unique-coverage worker owns the ranking. Do not load old summed-feature rankings.
+$('ki-ranking').textContent='Menunggu pengiraan keluasan unik PBT/Daerah…';
 // Area selection comes exclusively from the top filter, not a duplicate Spatial Explorer.
-function selectionChanged(){
- const type=document.getElementById('ksas-area-type');
- const area=document.getElementById('ksas-area-name');
- mode=type&&type.value==='daerah'?'daerah':'pbt';
- currentSelection.type=mode;
- currentSelection.name=area?area.value:'';
- renderRanking();
-}
-document.addEventListener('suo-ksas-admin-selection',selectionChanged);
-document.getElementById('ksas-area-type')?.addEventListener('change',selectionChanged);
-document.getElementById('ksas-area-name')?.addEventListener('change',selectionChanged);
-selectionChanged();
 const topics=[
  ['forest','🌳 Hutan dan biodiversiti','Kawasan perlindungan, Hutan Simpanan Kekal, habitat biodiversiti dan rangkaian ekologi. Tahap perlu ditentukan mengikut status serta kriteria lokasi sebenar.'],
  ['hills','⛰️ Tanah tinggi dan cerun','Kriteria kontur serta kawasan bukit dan cerun perlu disemak bersama data topografi, garis panduan dan pertimbangan teknikal.'],
@@ -97,6 +65,18 @@ function updateAreaMetrics(detail){
  $('ki-source').textContent='Kawasan '+d.name+' ('+d.type.toUpperCase()+') · luas hasil persilangan setiap fitur, mungkin bertindih. Bilangan menunjukkan fitur terpotong, bukan kawasan unik.';
 }
 document.addEventListener('suo-ksas-admin-metrics',e=>updateAreaMetrics(e.detail));
+document.addEventListener('suo-ksas-unique-selected',function(e){
+ const d=e.detail||{},v=$('ki-unique'),note=$('ki-unique-note');
+ if(!v||!note)return;
+ if(d.name&&Number.isFinite(d.unique_ha)){
+  v.textContent=format(d.unique_ha)+' ha';
+  note.textContent=d.name+' · '+format(d.coverage_pct)+'% daripada luas pentadbiran';
+ }else{
+  v.textContent='—';
+  note.textContent='Pilih PBT/daerah untuk paparan keluasan unik; bukan jumlah fitur';
+ }
+});
+
 document.addEventListener('suo-ksas-data',e=>{
  const d=e.detail||{},n=Number(d.total||0),c=d.counts||{};
  stateMetrics.count=format(n);
