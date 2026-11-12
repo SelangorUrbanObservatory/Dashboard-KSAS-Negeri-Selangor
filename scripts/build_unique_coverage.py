@@ -145,7 +145,7 @@ def main():
     pbt=normalize_boundary(pbt_frame,args.pbt_name_field,PBT,PBT_MAP)
     district_field=args.daerah_name_field
     if district_field not in daerah_frame.columns:
-        for candidate in ('NAMA_DAERAH','nama_daerah','DAERAH','Daerah','NAM','NAME_2','Name','name'):
+        for candidate in ('web_name','NAMA_DAERAH','nama_daerah','DAERAH','Daerah','NAM','NAME_2','Name','name'):
             if candidate in daerah_frame.columns:
                 values=set(daerah_frame[candidate].astype(str).str.strip())
                 if values==set(DAERAH):
