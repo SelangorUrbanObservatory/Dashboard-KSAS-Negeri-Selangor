@@ -63,7 +63,7 @@ function display(rows,metric){
    '<span class="ki-unique-amount">'+format(r.unique_ha)+' ha<small>'+format(r.coverage_pct)+'% liputan</small></span></button>';
  }).join('');
  ranking.innerHTML=intro+selectedDetails+list+
- '<p class="ki-unique-foot">Keluasan unik = union geometri KSAS selepas dipotong sempadan PBT/daerah, bukan jumlah keluasan fitur. Peratus = keluasan unik KSAS ÷ keluasan geometri sempadan × 100. Asas: semua tahap daripada dataset aktif. Semakan silang sebelum laporan rasmi digalakkan.</p>';
+ '<p class="ki-unique-foot">Keluasan unik = union geometri KSAS selepas dipotong sempadan PBT/daerah, bukan jumlah keluasan fitur. Peratus = keluasan unik KSAS ÷ keluasan geometri sempadan × 100. Asas: semua tahap daripada dataset aktif. Data dikira melalui GEOS/Shapely dan masih memerlukan semakan silang sebelum digunakan dalam laporan rasmi.</p>';
  ranking.querySelectorAll('[data-ranking-name]').forEach(b=>b.addEventListener('click',()=>{
   const t=$('ksas-area-type'),n=$('ksas-area-name');
   if(!n||!t)return;
