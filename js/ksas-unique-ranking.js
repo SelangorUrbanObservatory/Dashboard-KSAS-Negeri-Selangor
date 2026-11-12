@@ -21,6 +21,17 @@ const s=document.createElement('style');s.id='ksas-unique-ranking-styles';s.text
 '.ki-unique-levels{display:flex;gap:11px;flex-wrap:wrap;margin:8px 0}',
 '.ki-unique-levels span{font-size:10px;color:#716447}',
 '.ki-unique-selection small{color:#908265;line-height:1.5;font-size:9px}',
+'.ki-ranking-card .ki-unique-toolbar{margin-bottom:8px}',
+'.ki-ranking-card .ki-unique-row{grid-template-columns:68px minmax(0,1fr) 100px;gap:7px;padding:7px 5px}',
+'.ki-ranking-card .ki-unique-track{height:7px}',
+'.ki-ranking-card .ki-unique-name,.ki-ranking-card .ki-unique-amount{font-size:10px}',
+'.ki-ranking-card .ki-unique-selection{padding:9px;margin-bottom:8px}',
+'.ki-ranking-card .ki-unique-selection small{display:none}',
+'.ki-ranking-card .ki-unique-levels{gap:7px;margin:5px 0 0}',
+'.ki-ranking-card .ki-unique-foot{font-size:9px;margin-top:7px}',
+'.ki-unique-expand{border:1px solid #d9e7dc;background:#f5faf6;border-radius:8px;color:#35684f;font-size:11px;font-weight:800;cursor:pointer;padding:9px 12px;width:100%;margin-top:7px}',
+'.ki-unique-expand:hover{background:#e9f4ec}',
+
 
 '.ki-unique-progress{border:1px solid #dce9df;border-radius:9px;padding:11px 13px;background:#f6faf7;font-size:11px;color:#567361}',
 '@media(max-width:520px){.ki-unique-row{grid-template-columns:62px 1fr 100px;gap:6px;padding:7px 3px}.ki-unique-name,.ki-unique-amount{font-size:10px}}'
@@ -28,6 +39,7 @@ const s=document.createElement('style');s.id='ksas-unique-ranking-styles';s.text
 const cache={},running={},state={type:'pbt',name:''};
 const format=n=>Number(n).toLocaleString('ms-MY',{maximumFractionDigits:2});
 let worker=null,precomputed=null,precomputedChecked=false;
+let expanded=false;
 function types(){return state.type==='daerah'?DIST:PBT}
 function label(f,t){return window.__suoKsasBoundaryLabelFor?window.__suoKsasBoundaryLabelFor(f,t):''}
 function selected(){
@@ -54,16 +66,20 @@ function display(rows,metric){
   ['1','2','3'].map(k=>'<span>Tahap '+k+': <strong>'+format(picked.by_level_unique_ha[k]||0)+' ha</strong></span>').join('')+'</div>'+
   '<small>Luas unik setiap tahap boleh bertindih antara tahap. Jumlah per tahap tidak semestinya sama dengan luas unik keseluruhan.</small></div>':'';
 
- const list=rows.map((r,i)=>{
-  const pct=Math.min(100,Math.max(0,r.unique_ha/max*100));
+ const displayRows=expanded?rows:rows.slice(0,3);
+ const list=displayRows.map((r)=>{
+  const i=rows.indexOf(r),pct=Math.min(100,Math.max(0,r.unique_ha/max*100));
   const active=state.name===r.name;
   return '<button class="ki-unique-row" type="button" data-ranking-name="'+r.name+'" data-active="'+active+'" aria-label="Pilih '+r.name+'">'+
    '<span class="ki-unique-name">'+(i+1)+'. '+r.name+'</span>'+
    '<span class="ki-unique-track"><span style="width:'+pct.toFixed(2)+'%"></span></span>'+
    '<span class="ki-unique-amount">'+format(r.unique_ha)+' ha<small>'+format(r.coverage_pct)+'% liputan</small></span></button>';
  }).join('');
- ranking.innerHTML=intro+selectedDetails+list+
+ const more=rows.length>3?'<button class="ki-unique-expand" type="button" aria-expanded="'+expanded+'">'+(expanded?'Tunjuk 3 teratas':'Lihat semua '+rows.length+' kawasan')+'</button>':'';
+ ranking.innerHTML=intro+selectedDetails+list+more+
  '<p class="ki-unique-foot">Keluasan unik = union geometri KSAS selepas dipotong sempadan PBT/daerah, bukan jumlah keluasan fitur. Peratus = keluasan unik KSAS ÷ keluasan geometri sempadan × 100. Asas: semua tahap daripada dataset aktif. Data dikira melalui GEOS/Shapely dan masih memerlukan semakan silang sebelum digunakan dalam laporan rasmi.</p>';
+ const expandButton=ranking.querySelector('.ki-unique-expand');
+ if(expandButton)expandButton.addEventListener('click',()=>{expanded=!expanded;display(rows,metric)});
  ranking.querySelectorAll('[data-ranking-name]').forEach(b=>b.addEventListener('click',()=>{
   const t=$('ksas-area-type'),n=$('ksas-area-name');
   if(!n||!t)return;
