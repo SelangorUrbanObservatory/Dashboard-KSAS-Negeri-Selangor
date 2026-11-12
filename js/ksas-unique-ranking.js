@@ -17,6 +17,11 @@ const s=document.createElement('style');s.id='ksas-unique-ranking-styles';s.text
 '.ki-unique-amount{font-size:11px;color:#35644e;text-align:right;font-weight:800}',
 '.ki-unique-amount small{display:block;color:#84978e;font-size:9px;font-weight:600}',
 '.ki-unique-foot{font-size:10px;color:#82968b;line-height:1.7;margin-top:12px}',
+'.ki-unique-selection{background:#fff9ec;border:1px solid #f1deb6;padding:12px;border-radius:10px;margin-bottom:12px;color:#684d23;font-size:11px}',
+'.ki-unique-levels{display:flex;gap:11px;flex-wrap:wrap;margin:8px 0}',
+'.ki-unique-levels span{font-size:10px;color:#716447}',
+'.ki-unique-selection small{color:#908265;line-height:1.5;font-size:9px}',
+
 '.ki-unique-progress{border:1px solid #dce9df;border-radius:9px;padding:11px 13px;background:#f6faf7;font-size:11px;color:#567361}',
 '@media(max-width:520px){.ki-unique-row{grid-template-columns:62px 1fr 100px;gap:6px;padding:7px 3px}.ki-unique-name,.ki-unique-amount{font-size:10px}}'
 ].join('\n');document.head.appendChild(s);
@@ -45,6 +50,10 @@ function display(rows,metric){
  const max=Math.max(1,...rows.map(r=>r.unique_ha));
  const picked=rows.find(r=>r.name===state.name);
  const intro='<div class="ki-unique-toolbar"><b>Ranking '+(state.type==='pbt'?'12 PBT':'9 Daerah')+' · keluasan unik KSAS</b><small>ha &amp; % pentadbiran</small></div>';
+ const selectedDetails=picked?'<div class="ki-unique-selection"><b>'+picked.name+' · '+format(picked.unique_ha)+' ha ('+format(picked.coverage_pct)+'%)</b><div class="ki-unique-levels">'+
+  ['1','2','3'].map(k=>'<span>Tahap '+k+': <strong>'+format(picked.by_level_unique_ha[k]||0)+' ha</strong></span>').join('')+'</div>'+
+  '<small>Luas unik setiap tahap boleh bertindih antara tahap. Jumlah per tahap tidak semestinya sama dengan luas unik keseluruhan.</small></div>':'';
+
  const list=rows.map((r,i)=>{
   const pct=Math.min(100,Math.max(0,r.unique_ha/max*100));
   const active=state.name===r.name;
@@ -53,7 +62,7 @@ function display(rows,metric){
    '<span class="ki-unique-track"><span style="width:'+pct.toFixed(2)+'%"></span></span>'+
    '<span class="ki-unique-amount">'+format(r.unique_ha)+' ha<small>'+format(r.coverage_pct)+'% liputan</small></span></button>';
  }).join('');
- ranking.innerHTML=intro+list+
+ ranking.innerHTML=intro+selectedDetails+list+
  '<p class="ki-unique-foot">Keluasan unik = union geometri KSAS selepas dipotong sempadan PBT/daerah, bukan jumlah keluasan fitur. Peratus = keluasan unik KSAS ÷ keluasan geometri sempadan × 100. Asas: semua tahap daripada dataset aktif. Semakan silang sebelum laporan rasmi digalakkan.</p>';
  ranking.querySelectorAll('[data-ranking-name]').forEach(b=>b.addEventListener('click',()=>{
   const t=$('ksas-area-type'),n=$('ksas-area-name');
