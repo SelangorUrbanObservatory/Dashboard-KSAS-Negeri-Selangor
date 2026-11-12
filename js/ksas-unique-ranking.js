@@ -105,7 +105,7 @@ function start(){
  if(typeof Worker==='undefined'){setPending('Pelayar tidak menyokong pekerja pengiraan GIS. Perlu gunakan analisis praproses.');return}
  if(worker){worker.terminate();worker=null;running.pbt=false;running.daerah=false}
  try{
-  worker=new Worker('./js/ksas-unique-worker.js?v=1');
+  worker=new Worker('./js/ksas-unique-worker.js?v=2-unique-coverage');
  }catch(e){setPending('Pekerja spatial tidak dapat dimulakan: '+e.message);return}
  const localWorker=worker;
  running[type]=true;
