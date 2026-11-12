@@ -22,7 +22,7 @@ const s=document.createElement('style');s.id='ksas-unique-ranking-styles';s.text
 ].join('\n');document.head.appendChild(s);
 const cache={},running={},state={type:'pbt',name:''};
 const format=n=>Number(n).toLocaleString('ms-MY',{maximumFractionDigits:2});
-let runId=0,worker=null;
+let worker=null,precomputed=null,precomputedChecked=false;
 function types(){return state.type==='daerah'?DIST:PBT}
 function label(f,t){return window.__suoKsasBoundaryLabelFor?window.__suoKsasBoundaryLabelFor(f,t):''}
 function selected(){
@@ -72,9 +72,20 @@ function display(rows,metric){
 function start(){
  selected();
  const type=state.type;
+ if(!precomputedChecked){setPending('Semak dataset analisis unik praproses…');return}
  if(cache[type]){display(cache[type].rows,cache[type].metric);return}
  const input=validatedInput(type);
  if(!input){setPending('Menunggu geometri KSAS dan sempadan '+(type==='pbt'?'PBT':'Daerah')+' dimuatkan…');return}
+ // A precomputed complete GIS union is preferred for large datasets.
+ if(precomputed&&precomputed.source_count===input.features.length&&
+   precomputed.source_dataset===(window.__suoKsasData?.source101?'primary_101':'archive')){
+  const list=precomputed[type],names=typesFor(type);
+  if(Array.isArray(list)&&list.length===names.length&&
+     list.every(r=>names.includes(r.name)&&Number.isFinite(r.unique_ha)&&Number.isFinite(r.coverage_pct)&&r.coverage_pct>=0&&r.coverage_pct<=101)){
+   cache[type]={rows:list.slice().sort((a,b)=>b.unique_ha-a.unique_ha),metric:precomputed.metric};
+   display(cache[type].rows,cache[type].metric);return;
+  }
+ }
  if(input.features.length>300){
   setPending('Dataset aktif mempunyai '+input.features.length+' fitur. Pengiraan union menyeluruh dalam pelayar dinyahaktifkan untuk mengelakkan peta tersekat. Gunakan hasil analisis pra-proses GIS yang disahkan.');
   return;
@@ -123,5 +134,13 @@ document.addEventListener('suo-ksas-original-ready',()=>{for(const k of Object.k
 document.addEventListener('suo-ksas-data',()=>{if(!cache[state.type]&&!running[state.type])start()});
 $('ksas-area-type')?.addEventListener('change',onAreaChange);
 $('ksas-area-name')?.addEventListener('change',onAreaChange);
-window.setTimeout(start,0);
+fetch('./data/ksas_admin_unique.json',{cache:'no-store'})
+ .then(r=>r.ok?r.json():null)
+ .then(data=>{
+  if(data&&data.metric==='union_clipped_geometries_ha'&&
+      data.source_boundary&&data.source_ksas&&data.generated_at&&
+      ['computed_requires_review','verified'].includes(data.status))precomputed=data;
+ }).catch(e=>console.warn('No preprocessed unique KSAS dataset; using GIS worker',e))
+ .finally(()=>{precomputedChecked=true;start()});
+
 })();
