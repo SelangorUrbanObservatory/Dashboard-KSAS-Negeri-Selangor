@@ -23,6 +23,7 @@ const css=[
 '.ks-admin-selection select{width:100%;min-width:0;padding:9px;border:1px solid #dce7e1;border-radius:8px;background:#fff;font-size:11px;color:#496357}',
 '.ks-boundary-text{background:rgba(255,255,255,.93);border:1px solid #cdded8;border-radius:7px;box-shadow:0 2px 8px #163a3224;color:#315849;font:800 11px "DM Sans",sans-serif;padding:4px 7px;white-space:nowrap;text-align:center;pointer-events:none}',
 '.ks-boundary-text.daerah{border-color:#c8b6e8;color:#5a2d96;font-size:12px}',
+'.ks-boundary-text.selected{border:2px solid #c68d35;background:#fff7db;color:#173d43;font-size:13px;box-shadow:0 2px 12px #163a3240}',
 '@media(max-width:520px){.ks-admin-selection{grid-template-columns:1fr}}'
 ].join('\n');
 let style=document.createElement('style');style.id='ksas-admin-boundary-style';style.textContent=css;document.head.appendChild(style);
@@ -35,6 +36,7 @@ const section=document.createElement('section');section.className='ks-boundary';
 const stats=$('stats');if(stats)panel.insertBefore(section,stats);else panel.prepend(section);
 const configs={pbt:{color:'#d58a43',target:$('ks-b-pbt-select'),toggle:$('ks-b-pbt')},daerah:{color:'#7542b5',target:$('ks-b-daerah-select'),toggle:$('ks-b-daerah')}};
 const layers={};const labelLayers={};const data={};const state={pbt:'',daerah:''};
+let activeSelection={type:'',name:''},selected2D=null,selectedLabel=null;
 window.__suoKsasBoundaryData=data;
 // Dedicated panes remain above all KSAS fills and linework even after filter redraw.
 if(!map.getPane('ksas-boundaries'))map.createPane('ksas-boundaries');
@@ -42,6 +44,11 @@ map.getPane('ksas-boundaries').style.zIndex='625';
 if(!map.getPane('ksas-admin-labels'))map.createPane('ksas-admin-labels');
 map.getPane('ksas-admin-labels').style.zIndex='630';
 map.getPane('ksas-admin-labels').style.pointerEvents='none';
+if(!map.getPane('ksas-selected-area'))map.createPane('ksas-selected-area');
+map.getPane('ksas-selected-area').style.zIndex='640';
+if(!map.getPane('ksas-selected-label'))map.createPane('ksas-selected-label');
+map.getPane('ksas-selected-label').style.zIndex='650';
+map.getPane('ksas-selected-label').style.pointerEvents='none';
 function isCollection(j){return j&&j.type==='FeatureCollection'&&Array.isArray(j.features)&&j.features.length>0}
 function labelFor(feature,type){
  const p=feature.properties||{};
@@ -52,6 +59,58 @@ function labelFor(feature,type){
 }
 window.__suoKsasBoundaryLabelFor=labelFor;
 function announce(msg){$('ks-boundary-status').textContent=msg;}
+function selectedFeature(){
+ const x=activeSelection;
+ return x.name&&data[x.type]&&data[x.type].features.find(f=>labelFor(f,x.type)===x.name);
+}
+function redrawSelection2D(){
+ if(selected2D&&map.hasLayer(selected2D))map.removeLayer(selected2D);
+ if(selectedLabel&&map.hasLayer(selectedLabel))map.removeLayer(selectedLabel);
+ selected2D=null;selectedLabel=null;
+ const feature=selectedFeature();if(!feature)return;
+ selected2D=L.layerGroup([
+  L.geoJSON(feature,{pane:'ksas-selected-area',interactive:false,
+   style:{color:'#183f4a',weight:6,opacity:.96,fillColor:'#fff0a6',fillOpacity:.14}}),
+  L.geoJSON(feature,{pane:'ksas-selected-area',interactive:false,
+   style:{color:'#ffe17c',weight:2.7,opacity:1,fill:false}})
+ ]).addTo(map);
+ const b=L.geoJSON(feature).getBounds();
+ if(b.isValid()){
+  const text=activeSelection.name.replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  selectedLabel=L.marker(b.getCenter(),{pane:'ksas-selected-label',interactive:false,
+   icon:L.divIcon({className:'',html:'<div class="ks-boundary-text selected">'+text+'</div>',iconSize:[0,0],iconAnchor:[0,0]})}).addTo(map);
+ }
+}
+function sync3DSelection(){
+ const mb=window.__suoKsasMapbox;
+ if(!mb||!mb.isStyleLoaded||!mb.isStyleLoaded())return;
+ const sid='ks-admin-current-selection',fid=sid+'-fill',cid=sid+'-casing',lid=sid+'-line',tsid=sid+'-label',tid=sid+'-text';
+ const feature=selectedFeature(),fc={type:'FeatureCollection',features:feature?[feature]:[]};
+ try{
+  if(!mb.getSource(sid))mb.addSource(sid,{type:'geojson',data:fc});
+  else mb.getSource(sid).setData(fc);
+  if(!mb.getLayer(fid))mb.addLayer({id:fid,type:'fill',source:sid,paint:{'fill-color':'#fff0a6','fill-opacity':.15}});
+  if(!mb.getLayer(cid))mb.addLayer({id:cid,type:'line',source:sid,paint:{'line-color':'#183f4a','line-width':6}});
+  if(!mb.getLayer(lid))mb.addLayer({id:lid,type:'line',source:sid,paint:{'line-color':'#ffe17c','line-width':2.7}});
+  const bounds=feature&&L.geoJSON(feature).getBounds();
+  const labels={type:'FeatureCollection',features:bounds&&bounds.isValid()?[{type:'Feature',geometry:{type:'Point',coordinates:[bounds.getCenter().lng,bounds.getCenter().lat]},properties:{name:activeSelection.name}}]:[]};
+  if(!mb.getSource(tsid))mb.addSource(tsid,{type:'geojson',data:labels});
+  else mb.getSource(tsid).setData(labels);
+  if(!mb.getLayer(tid))mb.addLayer({id:tid,type:'symbol',source:tsid,
+   layout:{'text-field':['get','name'],'text-size':15,'text-font':['Open Sans Bold','Arial Unicode MS Bold'],'text-allow-overlap':true},
+   paint:{'text-color':'#183f4a','text-halo-color':'#fff5d2','text-halo-width':3}});
+  [fid,cid,lid,tid].forEach(id=>mb.moveLayer(id));
+ }catch(e){console.warn('3D selected administrative area',e)}
+}
+function setSelection(type,name,emit){
+ if(type!=='pbt'&&type!=='daerah')return;
+ activeSelection={type,name:name||''};
+ state.pbt=type==='pbt'?activeSelection.name:'';
+ state.daerah=type==='daerah'?activeSelection.name:'';
+ if(name)configs[type].toggle.checked=true;
+ redraw();redrawSelection2D();sync3DSelection();
+ if(emit)document.dispatchEvent(new CustomEvent('suo-ksas-boundary-selected',{detail:{type,name:activeSelection.name}}));
+}
 function sync3D(){
  const mb=window.__suoKsasMapbox;
  if(!mb||!mb.isStyleLoaded||!mb.isStyleLoaded())return;
@@ -87,7 +146,7 @@ function sync3D(){
   }catch(e){console.warn('3D boundary sync',type,e)}
  }
 }
-document.addEventListener('suo-ksas-mapbox-ready',sync3D);
+document.addEventListener('suo-ksas-mapbox-ready',()=>{sync3D();sync3DSelection()});
 function redraw(){
  sync3D();
  for(const type of ['pbt','daerah']){
@@ -109,23 +168,16 @@ function redraw(){
  }
 }
 function focus(type,name){
- state[type]=name;
- if(!name){redraw();return}
- configs[type].toggle.checked=true;redraw();
- document.dispatchEvent(new CustomEvent('suo-ksas-boundary-selected',{detail:{type:type,name:name}}));
- const feature=data[type]&&data[type].features.find(f=>labelFor(f,type)===name);
- if(!feature)return;
- const bounds=L.geoJSON(feature).getBounds();
- if(!bounds.isValid())return;
+ setSelection(type,name,true);
+ if(!name){announce('Pilihan kawasan dikosongkan.');return}
+ const feature=selectedFeature();
+ if(!feature){announce('Menunggu GeoJSON sempadan untuk '+name+'…');return}
+ const bounds=L.geoJSON(feature).getBounds();if(!bounds.isValid())return;
  const mb=window.__suoKsasMapbox;
  if($('map3d').classList.contains('active')&&mb){
-  mb.fitBounds([[bounds.getWest(),bounds.getSouth()],[bounds.getEast(),bounds.getNorth()]],
-   {padding:65,maxZoom:12,pitch:50});
- }else{
-  map.fitBounds(bounds,{padding:[28,28],maxZoom:12});
- }
- // Persistent admin name in the panel, plus map labels for every enabled boundary.
- announce('Dipilih: '+(type==='pbt'?'PBT':'Daerah')+' '+name+' · sempadan rasmi rujukan SUO');
+  mb.fitBounds([[bounds.getWest(),bounds.getSouth()],[bounds.getEast(),bounds.getNorth()]],{padding:65,maxZoom:12,pitch:50});
+ }else map.fitBounds(bounds,{padding:[28,28],maxZoom:12});
+ announce('Kawasan dipilih: '+(type==='pbt'?'PBT':'Daerah')+' '+name+' · sempadan diserlahkan');
 }
 for(const type of ['pbt','daerah']){
  configs[type].toggle.addEventListener('change',redraw);
@@ -162,6 +214,7 @@ async function load(type){
  const labels=Array.from(new Set(geo.features.map(f=>labelFor(f,type)))).sort((a,b)=>{const order=type==='pbt'?SUO_PBT_ORDER:SUO_DAERAH_ORDER;const ai=order.indexOf(a),bi=order.indexOf(b);return (ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b,'ms')});
  for(const n of labels){const o=document.createElement('option');o.value=n;o.textContent=n;configs[type].target.appendChild(o)}
  sync3D();
+ if(activeSelection.type===type&&activeSelection.name){redrawSelection2D();sync3DSelection()}
  document.dispatchEvent(new CustomEvent('suo-ksas-boundary-loaded',{detail:{type,features:geo.features.length,labels}}));
  redraw();return geo.features.length;
 }
