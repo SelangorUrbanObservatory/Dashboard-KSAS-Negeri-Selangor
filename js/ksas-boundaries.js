@@ -23,7 +23,7 @@ const css=[
 '.ks-admin-selection select{width:100%;min-width:0;padding:9px;border:1px solid #dce7e1;border-radius:8px;background:#fff;font-size:11px;color:#496357}',
 '.ks-boundary-text{background:rgba(255,255,255,.93);border:1px solid #cdded8;border-radius:7px;box-shadow:0 2px 8px #163a3224;color:#315849;font:800 11px "DM Sans",sans-serif;padding:4px 7px;white-space:nowrap;text-align:center;pointer-events:none}',
 '.ks-boundary-text.daerah{border-color:#c8b6e8;color:#5a2d96;font-size:12px}',
-'.ks-boundary-text.selected{border:2px solid #c68d35;background:#fff7db;color:#173d43;font-size:13px;box-shadow:0 2px 12px #163a3240}',
+'.ks-boundary-text.selected{border:2px solid #F59E0B;background:#FFF7E9;color:#173d43;font-size:13px;box-shadow:0 2px 12px #163a3240}',
 '@media(max-width:520px){.ks-admin-selection{grid-template-columns:1fr}}'
 ].join('\n');
 let style=document.createElement('style');style.id='ksas-admin-boundary-style';style.textContent=css;document.head.appendChild(style);
@@ -70,9 +70,9 @@ function redrawSelection2D(){
  const feature=selectedFeature();if(!feature)return;
  selected2D=L.layerGroup([
   L.geoJSON(feature,{pane:'ksas-selected-area',interactive:false,
-   style:{color:'#183f4a',weight:6,opacity:.96,fillColor:'#fff0a6',fillOpacity:.14}}),
+   style:{color:'#B85C00',weight:6,opacity:.96,fillColor:'#FFA726',fillOpacity:.18}}),
   L.geoJSON(feature,{pane:'ksas-selected-area',interactive:false,
-   style:{color:'#ffe17c',weight:2.7,opacity:1,fill:false}})
+   style:{color:'#FFA726',weight:2.7,opacity:1,fill:false}})
  ]).addTo(map);
  const b=L.geoJSON(feature).getBounds();
  if(b.isValid()){
@@ -89,16 +89,16 @@ function sync3DSelection(){
  try{
   if(!mb.getSource(sid))mb.addSource(sid,{type:'geojson',data:fc});
   else mb.getSource(sid).setData(fc);
-  if(!mb.getLayer(fid))mb.addLayer({id:fid,type:'fill',source:sid,paint:{'fill-color':'#fff0a6','fill-opacity':.15}});
-  if(!mb.getLayer(cid))mb.addLayer({id:cid,type:'line',source:sid,paint:{'line-color':'#183f4a','line-width':6}});
-  if(!mb.getLayer(lid))mb.addLayer({id:lid,type:'line',source:sid,paint:{'line-color':'#ffe17c','line-width':2.7}});
+  if(!mb.getLayer(fid))mb.addLayer({id:fid,type:'fill',source:sid,paint:{'fill-color':'#FFA726','fill-opacity':.18}});
+  if(!mb.getLayer(cid))mb.addLayer({id:cid,type:'line',source:sid,paint:{'line-color':'#B85C00','line-width':6}});
+  if(!mb.getLayer(lid))mb.addLayer({id:lid,type:'line',source:sid,paint:{'line-color':'#FFA726','line-width':2.7}});
   const bounds=feature&&L.geoJSON(feature).getBounds();
   const labels={type:'FeatureCollection',features:bounds&&bounds.isValid()?[{type:'Feature',geometry:{type:'Point',coordinates:[bounds.getCenter().lng,bounds.getCenter().lat]},properties:{name:activeSelection.name}}]:[]};
   if(!mb.getSource(tsid))mb.addSource(tsid,{type:'geojson',data:labels});
   else mb.getSource(tsid).setData(labels);
   if(!mb.getLayer(tid))mb.addLayer({id:tid,type:'symbol',source:tsid,
    layout:{'text-field':['get','name'],'text-size':15,'text-font':['Open Sans Bold','Arial Unicode MS Bold'],'text-allow-overlap':true},
-   paint:{'text-color':'#183f4a','text-halo-color':'#fff5d2','text-halo-width':3}});
+   paint:{'text-color':'#B85C00','text-halo-color':'#FFF3DF','text-halo-width':3}});
   [fid,cid,lid,tid].forEach(id=>mb.moveLayer(id));
  }catch(e){console.warn('3D selected administrative area',e)}
 }
